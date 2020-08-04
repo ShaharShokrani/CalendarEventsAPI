@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CalendarEvents.DataAccess\CalendarEvents.DataAccess.csproj" />
+    <ProjectReference Include="..\CalendarEvents.Models\CalendarEvents.Models.csproj" />
+    <ProjectReference Include="..\CalendarEvents.Scrapper\CalendarEvents.Scrapper.csproj" />
+  </ItemGroup>
+
+</Project>

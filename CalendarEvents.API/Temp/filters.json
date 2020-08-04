@@ -1,0 +1,38 @@
+{
+    "items": [
+        {
+            "Id": "1111-1111",
+            "TypeId": 1,
+            "Name": "Genre",
+            "Options": [
+                {
+                    "Text": "Music",
+                    "Value": "1",
+                    "Guid": ""
+                },
+                {
+                    "Text": "Theater",
+                    "Value": "2",
+                    "Guid": ""
+                }
+            ]
+        },
+        {
+            "Id": "2222-2222",
+            "TypeId": 2,
+            "Name": "SubGenre",
+            "Options": [
+                {
+                    "Text": "text1",
+                    "Value": "1",
+                    "Guid": ""
+                },
+                {
+                    "Text": "text2",
+                    "Value": "2",
+                    "Guid": ""
+                }
+            ]
+        }
+    ]
+}
