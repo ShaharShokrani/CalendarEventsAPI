@@ -19,6 +19,18 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CalendarEvents.Services", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CalendarEvents.API", "CalendarEvents.API\CalendarEvents.API.csproj", "{DA845921-294B-4C1A-8C92-C624AE9B8D0C}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dockerfiles", "Dockerfiles", "{486B4777-E3B6-4B62-BBC8-7326C2BCD40C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "API", "API", "{EE0E2058-CBA7-45CF-B77F-66E4637FACBD}"
+	ProjectSection(SolutionItems) = preProject
+		Dockerfiles\API\Dockerfile = Dockerfiles\API\Dockerfile
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DB", "DB", "{8CCA18FA-BEDB-4AD4-9CB4-F2A13BAD4EF1}"
+	ProjectSection(SolutionItems) = preProject
+		Dockerfiles\DB\Dockerfile = Dockerfiles\DB\Dockerfile
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -60,6 +72,10 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{EE0E2058-CBA7-45CF-B77F-66E4637FACBD} = {486B4777-E3B6-4B62-BBC8-7326C2BCD40C}
+		{8CCA18FA-BEDB-4AD4-9CB4-F2A13BAD4EF1} = {486B4777-E3B6-4B62-BBC8-7326C2BCD40C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {72EADA74-5817-4728-9AB4-6627A7D4B966}
