@@ -7,12 +7,12 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build
 WORKDIR src
-COPY ["../../CalendarEvents.API.csproj", "CalendarEvents.API/"]
-COPY ["../../CalendarEvents.Services/CalendarEvents.Services.csproj", "CalendarEvents.Services/"]
-COPY ["../../CalendarEvents.DataAccess/CalendarEvents.DataAccess.csproj", "CalendarEvents.DataAccess/"]
-COPY ["../../CalendarEvents.Models/CalendarEvents.Models.csproj", "CalendarEvents.Models/"]
-COPY ["../../CalendarEvents.Scrapper/CalendarEvents.Scrapper.csproj", "CalendarEvents.Scrapper/"]
-RUN dotnet restore "../../CalendarEvents.API/CalendarEvents.API.csproj"
+COPY ["CalendarEvents.API/CalendarEvents.API.csproj", "CalendarEvents.API/"]
+COPY ["CalendarEvents.Services/CalendarEvents.Services.csproj", "CalendarEvents.Services/"]
+COPY ["CalendarEvents.DataAccess/CalendarEvents.DataAccess.csproj", "CalendarEvents.DataAccess/"]
+COPY ["CalendarEvents.Models/CalendarEvents.Models.csproj", "CalendarEvents.Models/"]
+COPY ["CalendarEvents.Scrapper/CalendarEvents.Scrapper.csproj", "CalendarEvents.Scrapper/"]
+RUN dotnet restore "CalendarEvents.API/CalendarEvents.API.csproj"
 COPY . .
 WORKDIR "/src/CalendarEvents.API"
 RUN dotnet build "CalendarEvents.API.csproj" -c Release -o /app/build

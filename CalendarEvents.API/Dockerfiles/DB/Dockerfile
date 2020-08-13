@@ -3,7 +3,9 @@ FROM mcr.microsoft.com/mssql/server:2019-latest
 ENV ACCEPT_EULA=Y
 ENV SA_PASSWORD=<YourStrong@Passw0rd>
 
-COPY ["../../Scripts/SetupDb.sql", "Db/Scripts/"]
+RUN echo $(ls -1 /tmp/dir)
+
+COPY ["Scripts/*", "Db/Scripts/"]
 VOLUME ./Db:/var/opt/mssql/data
 
 HEALTHCHECK --interval=10s --timeout=5s --start-period=10s --retries=10 \
