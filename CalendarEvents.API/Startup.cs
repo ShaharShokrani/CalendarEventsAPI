@@ -116,7 +116,7 @@ namespace CalendarEvents
                 .GetTypeInfo().Assembly.GetName().Name;
 
             string server = Environment.GetEnvironmentVariable("DatabaseServer") ?? "localhost";
-            string database = Environment.GetEnvironmentVariable("DatabaseName") ?? "CalendarEventsAPI_Db";
+            string database = Environment.GetEnvironmentVariable("DatabaseName") ?? "CalendarEventsAPIDb";
             string port = Environment.GetEnvironmentVariable("DatabasePort") ?? "1443";
             string user = Environment.GetEnvironmentVariable("DatabaseUser") ?? "sa";
             string password = Environment.GetEnvironmentVariable("DatabasePassword") ?? "<YourStrong@Passw0rd>";
