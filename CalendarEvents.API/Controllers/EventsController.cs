@@ -137,6 +137,7 @@ namespace CalendarEvents.Controllers
         //[Authorize]
         //[ValidateAntiForgeryToken]
         [HttpPut]
+        [AllowAnonymous]
         //[Authorize(Policy = "Events.Put")]
         public async Task<IActionResult> Put([FromBody] EventPutRequest request)
         {
