@@ -63,7 +63,9 @@ namespace CalendarEvents.Tests
                     Details = null,
                     ImagePath = Guid.NewGuid().ToString(),
                     Title = Guid.NewGuid().ToString(),
-                    UpdateDate = DateTime.Now
+                    UpdateDate = DateTime.Now,
+                    OwnerId = Guid.NewGuid().ToString(),
+                    URL = Guid.NewGuid().ToString()
                 };
             }
         }

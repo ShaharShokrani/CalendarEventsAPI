@@ -79,7 +79,7 @@ namespace CalendarEvents
 
             services.AddScoped<IAuthorizationHandler, MustOwnHandler<EventModel>>();
 
-            string authority = Environment.GetEnvironmentVariable("Authority") ?? "http://localhost:5001";
+            string authority = Environment.GetEnvironmentVariable("Authority") ?? "http://localhost:5002";
 
             services.AddAuthentication(options =>
             {
@@ -89,7 +89,7 @@ namespace CalendarEvents
             {
                 o.Authority = authority;
                 o.Audience = "calendareventsapi";
-                o.RequireHttpsMetadata = false;
+                o.RequireHttpsMetadata = false;                
             });
 
             services.AddAuthorization(authorizationOptions =>
