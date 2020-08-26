@@ -4,6 +4,8 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
 
     <IsPackable>false</IsPackable>
+
+    <OutputType>Library</OutputType>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,6 +24,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CalendarEvents.API\CalendarEvents.API.csproj" />
+    <ProjectReference Include="..\CalendarEvents.Common\CalendarEvents.Common.csproj" />
     <ProjectReference Include="..\CalendarEvents.DataAccess\CalendarEvents.DataAccess.csproj" />
     <ProjectReference Include="..\CalendarEvents.Models\CalendarEvents.Models.csproj" />
     <ProjectReference Include="..\CalendarEvents.Services\CalendarEvents.Services.csproj" />    

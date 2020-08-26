@@ -5,9 +5,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Routing;
+using Newtonsoft.Json;
 using System;
+using System.IO;
 using System.Linq;
 using System.Reflection.Metadata;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace CalendarEvents.API.Authorization
@@ -25,22 +28,29 @@ namespace CalendarEvents.API.Authorization
             this._httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
         }
 
+        public async Task<string> RequestBody(Stream body)
+        {
+            var bodyStream = new StreamReader(body);
+            return await bodyStream.ReadToEndAsync();
+        }
+
         protected async override Task HandleRequirementAsync(
             AuthorizationHandlerContext context,
             MustOwnRequirement<T> requirement)
         {
-            var pendingRequirements = context.PendingRequirements.ToList();
-
-            var id = _httpContextAccessor.HttpContext.GetRouteValue("id").ToString();
-            if (!Guid.TryParse(id, out Guid guid))
-            {
-                context.Fail();
+            if (!context.PendingRequirements.Any(req => req.GetType().Name == typeof(MustOwnRequirement<T>).Name))
                 return;
-            }
 
-            var ownerId = context.User.Claims.FirstOrDefault(c => c.Type == "sub").Value;
+            string requestedBody = await RequestBody(_httpContextAccessor.HttpContext.Request.Body);
+            var genericEntity = JsonConvert.DeserializeObject<T>(requestedBody);
+            //if (!Guid.TryParse(id.Id, out Guid guid))
+            //{
+            //    context.Fail();
+            //    return;
+            //}
+            string ownerId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;            
 
-            var isOwnerRH = await this._eventService.IsOwner(guid, ownerId);
+            var isOwnerRH = await this._eventService.IsOwner(genericEntity.Id, ownerId);
 
             if (!isOwnerRH.Success)
             {

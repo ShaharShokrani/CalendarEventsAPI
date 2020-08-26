@@ -15,5 +15,9 @@ namespace CalendarEvents.Models
         [IsNotEmpty(ErrorMessage = "Guid Id Is Empty")]
         public Guid Id { get; set; }
         public string Name { get; set; }
+        public string Base64Id { get; set; }
+        public string Description { get; set; }
+        public string Details { get; set; }
+        public string ImagePath { get; set; }
     }
 }

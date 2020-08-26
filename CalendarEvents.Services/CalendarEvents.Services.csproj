@@ -5,6 +5,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="3.1.7" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\CalendarEvents.DataAccess\CalendarEvents.DataAccess.csproj" />
     <ProjectReference Include="..\CalendarEvents.Models\CalendarEvents.Models.csproj" />
     <ProjectReference Include="..\CalendarEvents.Scrapper\CalendarEvents.Scrapper.csproj" />

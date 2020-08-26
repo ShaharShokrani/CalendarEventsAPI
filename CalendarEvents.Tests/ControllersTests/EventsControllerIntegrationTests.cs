@@ -45,7 +45,7 @@ namespace CalendarEvents.Tests
         [Test] public async void Get_WhenCalled_ShouldReturnOk()
         {
             // Arrange
-            EventModel expectedItem = TestsFacade.EventsFacade.BuildEventModelItem();            
+            EventModel expectedItem = TestsFacade.EventsFacade.BuildEventModels().First();            
             _context.Events.Add(expectedItem);
             _context.SaveChanges();
 

@@ -98,10 +98,10 @@ namespace CalendarEvents
                     "Events.Put",
                     policyBuilder =>
                     {
-                        policyBuilder.RequireAuthenticatedUser();
-                        policyBuilder.AddRequirements(
-                            new MustOwnRequirement<EventModel>()
-                        );
+                        //policyBuilder.RequireAuthenticatedUser();
+                        //policyBuilder.AddRequirements(
+                        //    new MustOwnRequirement<EventModel>()
+                        //);
                         policyBuilder.RequireClaim("scope", "calendareventsapi");
                     });
                 authorizationOptions.AddPolicy(

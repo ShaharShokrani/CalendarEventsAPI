@@ -1,7 +1,9 @@
-﻿using CalendarEvents.DataAccess;
+﻿using CalendarEvents.Common;
+using CalendarEvents.DataAccess;
 using CalendarEvents.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,19 +15,19 @@ namespace CalendarEvents.Tests
     {
         public static class EventsFacade
         {
-            public static List<EventModel> BuildEventModelList(int count = 1)
+            public static List<EventModel> BuildEventModels(int count = 1)
             {
                 List<EventModel> resultList = new List<EventModel>(count);
 
                 while (count > 0)
                 {
-                    resultList.Add(BuildEventModelItem());
+                    resultList.Add(BuildEventModel());
                     count--;
                 }
 
                 return resultList;
             }            
-            public static EventModel BuildEventModelItem()
+            private static EventModel BuildEventModel()
             {
                 return new EventModel()
                 {
@@ -34,38 +36,77 @@ namespace CalendarEvents.Tests
                     IsAllDay = false,
                     Start = DateTime.UtcNow.AddMinutes(1),
                     Title = Guid.NewGuid().ToString(),
-                    URL = Guid.NewGuid().ToString()
+                    URL = Guid.NewGuid().ToString(),
+                    Base64Id = Utils.Base64Encode(Guid.NewGuid().ToString()),
+                    CreateDate = DateTime.UtcNow,
+                    Description = Guid.NewGuid().ToString(),
+                    Details = JsonConvert.SerializeObject(new { }),
+                    ImagePath = Guid.NewGuid().ToString(),
+                    OwnerId = Guid.NewGuid().ToString(),
+                    UpdateDate = DateTime.UtcNow
                 };
             }
-            public static List<EventModelDTO> BuildEventModelDTOList(int count = 1)
-            {
-                List<EventModelDTO> resultList = new List<EventModelDTO>(count);
 
-                while (count > 0)
+            public static List<EventModelPostDTO> BuildEventModelPostsDTOs(IEnumerable<EventModel> eventModels = null)
+            {
+                if (eventModels == null)
+                    eventModels = BuildEventModels();
+
+                List<EventModelPostDTO> result = new List<EventModelPostDTO>();
+
+                foreach (var eventModel in eventModels)
                 {
-                    resultList.Add(BuildEventModelDTOItem());
-                    count--;
+                    result.Add(BuildEventModelPostDTO(eventModel));
                 }
 
-                return resultList;
+                return result;
             }
-            public static EventModelDTO BuildEventModelDTOItem()
+
+            public static List<EventModelDTO> BuildEventModelDTOList(IEnumerable<EventModel> eventModels = null)
+            {
+                if (eventModels == null)
+                    eventModels = BuildEventModels();
+
+                List<EventModelDTO> result = new List<EventModelDTO>();
+
+                foreach (var eventModel in eventModels)
+                {
+                    result.Add(BuildEventModelDTO(eventModel));
+                }
+
+                return result;
+            }
+            private static EventModelDTO BuildEventModelDTO(EventModel eventModel)
             {
                 return new EventModelDTO()
                 {
-                    End = DateTime.UtcNow.AddHours(1),
-                    Id = Guid.NewGuid(),
-                    IsAllDay = false,
-                    Start = DateTime.UtcNow.AddMinutes(1),
-                    Base64Id = Guid.NewGuid().ToString(),
-                    CreateDate = DateTime.Now,
-                    Description = Guid.NewGuid().ToString(),
-                    Details = null,
-                    ImagePath = Guid.NewGuid().ToString(),
-                    Title = Guid.NewGuid().ToString(),
-                    UpdateDate = DateTime.Now,
-                    OwnerId = Guid.NewGuid().ToString(),
-                    URL = Guid.NewGuid().ToString()
+                    End = eventModel.End,
+                    Id = eventModel.Id,
+                    IsAllDay = eventModel.IsAllDay,
+                    Start = eventModel.Start,
+                    Base64Id = eventModel.Base64Id,
+                    CreateDate = eventModel.CreateDate,
+                    Description = eventModel.Description,
+                    Details = eventModel.Details,
+                    ImagePath = eventModel.ImagePath,
+                    Title = eventModel.Title,
+                    UpdateDate = eventModel.UpdateDate,
+                    OwnerId = eventModel.OwnerId,
+                    URL = eventModel.URL                    
+                };
+            }
+            public static EventModelPostDTO BuildEventModelPostDTO(EventModel eventModel)
+            {
+                return new EventModelPostDTO()
+                {
+                    End = eventModel.End,
+                    IsAllDay = eventModel.IsAllDay,
+                    Start = eventModel.Start,
+                    Title = eventModel.Title,
+                    URL = eventModel.URL,
+                    Description = eventModel.Description,
+                    Details = eventModel.Details,
+                    ImagePath = eventModel.ImagePath                    
                 };
             }
         }

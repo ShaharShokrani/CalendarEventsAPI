@@ -7,6 +7,7 @@ using CalendarEvents.Models;
 using CalendarEvents.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace CalendarEvents.Controllers
 {
@@ -16,15 +17,19 @@ namespace CalendarEvents.Controllers
     {        
         private readonly IGenericService<EventModel> _eventsService;
         private readonly IMapper _mapper;
-        private readonly IAuthorizationService _authorizationService;
+        private readonly IUserService _userService;
+        private readonly ILogger<EventsController> _log;
 
         public EventsController(
-            IAuthorizationService authorizationService,
+            IUserService userService,
             IGenericService<EventModel> eventsService, 
-            IMapper mapper)
+            IMapper mapper,
+            ILogger<EventsController> log)
         {
             this._eventsService = eventsService ?? throw new ArgumentNullException(nameof(eventsService));
             this._mapper = mapper?? throw new ArgumentNullException(nameof(mapper));
+            this._userService = userService ?? throw new ArgumentNullException(nameof(userService));
+            this._log = log ?? throw new ArgumentNullException(nameof(log));
         }
 
         // GET api/events
@@ -52,13 +57,12 @@ namespace CalendarEvents.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ErrorCode.Unknown);
-                //TODO: Log the Exception.
+                this._log.LogError(ex, "EventsController.Get");
+                return StatusCode(500, ErrorCode.Unknown);                
             }
         }
 
-        // GET api/events/c4df7159-2402-4f49-922c-1a2caef02de2
-        [AllowAnonymous]
+        // GET api/events)
         [HttpGet("{id}", Name = "GET")]
         public async Task<IActionResult> Get(Guid id)
         {
@@ -66,7 +70,7 @@ namespace CalendarEvents.Controllers
             {
                 if (id == Guid.Empty)
                 {
-                    return BadRequest();
+                    return BadRequest(ModelState);
                 }
 
                 ResultHandler<EventModel> result = await this._eventsService.GetById(id);
@@ -74,7 +78,7 @@ namespace CalendarEvents.Controllers
                 {
                     EventModel eventModel = result.Value as EventModel;
                     EventModelDTO eventModelDTO = this._mapper.Map<EventModelDTO>(eventModel);
-
+                    
                     return Ok(eventModelDTO);
                 }
                 else
@@ -84,8 +88,8 @@ namespace CalendarEvents.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ErrorCode.Unknown);
-                //TODO: Log the Exception.
+                this._log.LogError(ex, "EventsController.Get");
+                return StatusCode(500, ErrorCode.Unknown);                
             }
         }
 
@@ -98,28 +102,29 @@ namespace CalendarEvents.Controllers
 
         // POST api/events
         [HttpPost]
-        //[Authorize(Policy = "Events.Post")]
+        [Authorize(Policy = "Events.Post")]
         public async Task<IActionResult> Post([FromBody] IEnumerable<EventModelPostDTO> requests = null)
         {
             try
             {
                 if (!ModelState.IsValid)
                 {
-                    return BadRequest();
+                    return BadRequest(ModelState);
                 }
                 
                 IEnumerable<EventModel> items = this._mapper.Map<IEnumerable<EventModel>>(requests);
-
-                string ownerId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+                
+                string ownerId = this._userService.OwnerId.ToString();
                 foreach (var item in items)
                 {
                     item.OwnerId = ownerId;
-                } 
+                }
 
                 ResultHandler rh = await this._eventsService.InsertRange(items);
                 if (rh.Success)
                 {
-                    return CreatedAtAction("Post", items);
+                    IEnumerable<EventModelPostDTO> listDTO = this._mapper.Map<IEnumerable<EventModelPostDTO>>(items);
+                    return CreatedAtAction(nameof(Post), listDTO);
                 }
                 else
                 {
@@ -128,24 +133,23 @@ namespace CalendarEvents.Controllers
             }
             catch (Exception ex)
             {
+                this._log.LogError(ex, "EventsController.Post");
                 return StatusCode(500, ErrorCode.Unknown);
-                //TODO: Log the Exception.
             }
         }
 
         // PUT api/events/
         //[Authorize]
         //[ValidateAntiForgeryToken]
-        [HttpPut]
-        [AllowAnonymous]
-        //[Authorize(Policy = "Events.Put")]
+        [HttpPut]        
+        [Authorize(Policy = "Events.Put")]
         public async Task<IActionResult> Put([FromBody] EventPutRequest request)
         {
             try
-            {                
-                if (!ModelState.IsValid)
+            {
+                if (request == null || !ModelState.IsValid)
                 {
-                    return BadRequest();
+                    return BadRequest(request);
                 }
 
                 ResultHandler<EventModel> getByIdResult = await this._eventsService.GetById(request.Id);
@@ -154,20 +158,28 @@ namespace CalendarEvents.Controllers
                     return StatusCode(500, getByIdResult.ErrorCode);
                 }
 
-
-
                 EventModel item = getByIdResult.Value as EventModel;
+
+                string ownerId = this._userService.OwnerId.ToString();
+                if (!item.OwnerId.Equals(ownerId))
+                    return Unauthorized(request);
+
                 item.End = request.End;
                 item.IsAllDay = request.IsAllDay;
                 item.Title = request.Name;
                 item.Start = request.Start;
                 item.URL = request.URL;
+                item.Base64Id = request.Base64Id;
+                item.Description = request.Description;
+                item.Details = request.Details;
+                item.ImagePath = request.ImagePath;
                 item.UpdateDate = DateTime.UtcNow;
                 
                 ResultHandler result = await this._eventsService.Update(item);
                 if (result.Success)
                 {
-                    return Ok();
+                    EventModelDTO eventModelDTO = this._mapper.Map<EventModelDTO>(item);
+                    return Ok(eventModelDTO);
                 }
                 else
                 {
@@ -176,8 +188,8 @@ namespace CalendarEvents.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ErrorCode.Unknown);
-                //TODO: Log the Exception.
+                this._log.LogError(ex, "EventsController.Put");
+                return StatusCode(500, ErrorCode.Unknown);                
             }
         }
 
@@ -185,20 +197,21 @@ namespace CalendarEvents.Controllers
         //[Authorize]
         //[ValidateAntiForgeryToken]
         [HttpDelete("{id}")]
-        //[Authorize(Policy = "Events.Delete")]
+        [Authorize(Policy = "Events.Delete")]
         public async Task<IActionResult> Delete(Guid id)
         {
             try
-            {
+            {                
                 if (id == Guid.Empty)
                 {
-                    return BadRequest();
+                    ModelState.AddModelError(nameof(id), "Is empty.");
+                    return BadRequest(ModelState);
                 }
 
                 ResultHandler rh = await this._eventsService.Delete(id);
                 if (rh.Success)
                 {
-                    return Ok();
+                    return Ok(id);
                 }
                 else
                 {
@@ -207,8 +220,8 @@ namespace CalendarEvents.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ErrorCode.Unknown);
-                //TODO: Log the Exception.
+                this._log.LogError(ex, "EventsController.Delete");
+                return StatusCode(500, ErrorCode.Unknown);                
             }
         }
     }
