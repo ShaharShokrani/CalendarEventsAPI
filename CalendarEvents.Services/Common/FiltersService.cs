@@ -90,7 +90,7 @@ namespace CalendarEvents.Services
                 }
 
                 Expression<Func<T, bool>> result = Expression.Lambda<Func<T, bool>>(finalExpression, parameterExpression);
-                return ResultHandler.Ok<Expression<Func<T, bool>>>(result);
+                return ResultHandler.Ok(result);
             }
             catch (Exception ex)
             {

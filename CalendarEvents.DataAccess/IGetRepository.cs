@@ -10,7 +10,7 @@ namespace CalendarEvents.DataAccess
     public interface IGetRepository<TEntity>
     {
         //TODO: Implement IAsyncEnumarable
-        Task<List<TEntity>> Get(
+        IAsyncEnumerable<TEntity> Get(
             Expression<Func<TEntity, bool>> filters = null,
             Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
             string includeProperties = "",

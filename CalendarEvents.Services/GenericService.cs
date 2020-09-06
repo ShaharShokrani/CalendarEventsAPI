@@ -24,8 +24,8 @@ namespace CalendarEvents.Services
 
         public GenericService(IGenericRepository<T> repository, ILogger<GenericService<T>> log)
         {
-            this._repository = repository;
-            this._log = log;
+            this._repository = repository ?? throw new ArgumentNullException(nameof(repository));
+            this._log = log ?? throw new ArgumentNullException(nameof(log));
         }
 
         public async Task<ResultHandler> Insert(T obj)
@@ -44,8 +44,8 @@ namespace CalendarEvents.Services
         public async Task<ResultHandler> InsertRange(IEnumerable<T> items)
         {
             try
-            {                
-                await this._repository.InsertRange(items);
+            {
+                await this._repository.InsertRange(items);               
                 return ResultHandler.Ok();
             }
             catch (Exception ex)
@@ -54,7 +54,7 @@ namespace CalendarEvents.Services
                 return ResultHandler.Fail(ex);
             }
         }
-        public async Task<ResultHandler<IEnumerable<T>>> Get(IEnumerable<FilterStatement<T>> filterStatements,
+        public ResultHandler<IAsyncEnumerable<T>> Get(IEnumerable<FilterStatement<T>> filterStatements,
                                                 OrderByStatement<T> orderByStatement = null,
                                                 string includeProperties = "")
         {
@@ -67,7 +67,7 @@ namespace CalendarEvents.Services
                     var filtersResult = filterService.BuildExpression();
                     if (!filtersResult.Success)
                     {
-                        return ResultHandler.Fail<IEnumerable<T>>(filtersResult.ErrorCode);
+                        return ResultHandler.Fail<IAsyncEnumerable<T>>(filtersResult.ErrorCode);
                     }
                     filters = filtersResult.Value as Expression<Func<T, bool>>;
                 }
@@ -79,19 +79,19 @@ namespace CalendarEvents.Services
                     var orderByResult = orderByService.GetOrderBy<T>(orderByStatement);
                     if (!orderByResult.Success)
                     {
-                        return ResultHandler.Fail<IEnumerable<T>>(orderByResult.ErrorCode);
+                        return ResultHandler.Fail<IAsyncEnumerable<T>>(orderByResult.ErrorCode);
                     }
                     orderBy = orderByResult.Value as Func<IQueryable<T>, IOrderedQueryable<T>>;
                 }
 
-                var result = await this._repository.Get(filters, orderBy, includeProperties);
+                IAsyncEnumerable<T> result = this._repository.Get(filters, orderBy, includeProperties);
 
-                return ResultHandler.Ok<IEnumerable<T>>(result);
+                return ResultHandler.Ok(result);
             }
             catch (Exception ex)
             {
                 _log.LogError(ex, "Failed to get objects from DB");
-                return ResultHandler.Fail<IEnumerable<T>>(ex);
+                return ResultHandler.Fail<IAsyncEnumerable<T>>(ex);
             }
         }
         public async Task<ResultHandler<T>> GetById(Guid id)
@@ -99,6 +99,9 @@ namespace CalendarEvents.Services
             try
             {
                 var entity = await this._repository.GetById(id);
+                if (entity == null)
+                    return ResultHandler.Fail<T>(ErrorCode.NotFound);
+
                 return ResultHandler.Ok<T>(entity);
             }
             catch (Exception ex)
@@ -146,8 +149,11 @@ namespace CalendarEvents.Services
         {
             try
             {
-                var entity = await this._repository.IsOwner(id, ownerId);
-                return ResultHandler.Ok<bool>(entity);
+                var isOwner = await this._repository.IsOwner(id, ownerId);
+                if (isOwner)
+                    return ResultHandler.Ok<bool>(isOwner);
+                else
+                    return ResultHandler.Fail<bool>(ErrorCode.Unauthorized);
             }
             catch (Exception ex)
             {

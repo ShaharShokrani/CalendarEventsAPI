@@ -4,7 +4,6 @@ using CalendarEvents.API.Authorization;
 using CalendarEvents.DataAccess;
 using CalendarEvents.Models;
 using CalendarEvents.Services;
-using IdentityServer4.Events;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -18,7 +17,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Logging;
 using System;
 using System.Reflection;
-using System.Security.Claims;
 
 namespace CalendarEvents
 {
@@ -136,6 +134,7 @@ namespace CalendarEvents
             //TODO: register all the generic service and repository with generic syntax like autofac does <>.
             services.AddScoped<IGenericService<EventModel>, GenericService<EventModel>>();
             services.AddScoped<IGenericRepository<EventModel>, GenericRepository<EventModel>>();
+            services.AddScoped<IUserService, UserService>();
             //services.AddScoped<IScrapingService, ScrapingService>(); //WIll be inside another project.
         }
 

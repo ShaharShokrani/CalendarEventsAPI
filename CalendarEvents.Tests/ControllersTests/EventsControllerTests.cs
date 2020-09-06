@@ -23,17 +23,20 @@ namespace CalendarEvents.Tests
         private Mock<IUserService> _userServiceMock;
         private Mock<IGenericService<EventModel>> _genericServiceMock;        
         
-        private IEnumerable<EventModel> _eventModels;        
+        private IEnumerable<EventModel> _eventModels;
+        private IAsyncEnumerable<EventModel> _asyncEventModels;
         private IEnumerable<EventModelDTO> _eventModelsDTOs;
-        private List<EventModelPostDTO> _eventModelPostsDTOs;
+        private IEnumerable<EventModelPostDTO> _eventModelPostsDTOs;
 
         [SetUp]
-        public void Setup()
+        public async Task Setup()
         {
             _mock = AutoMock.GetLoose();
             this._controller = _mock.Create<EventsController>();
-            this._eventModels = TestsFacade.EventsFacade.BuildEventModels();            
-            this._eventModelsDTOs = TestsFacade.EventsFacade.BuildEventModelDTOList(this._eventModels);
+            this._eventModels = TestsFacade.EventsFacade.BuildEventModels();
+            //TODO: Instead of Building the event models DTO with the facade use Mapper.
+            this._asyncEventModels = TestsFacade.EventsFacade.BuildIAsyncEnumerable(this._eventModels);
+            this._eventModelsDTOs = await TestsFacade.EventsFacade.BuildEventModelDTOs(this._asyncEventModels);
             this._eventModelPostsDTOs = TestsFacade.EventsFacade.BuildEventModelPostsDTOs(this._eventModels);
 
             this._loggerMock = this._mock.Mock<ILogger<EventsController>>();
@@ -66,52 +69,60 @@ namespace CalendarEvents.Tests
         public async Task Get_WhenCalled_ShouldReturnOk()
         {
             //Arrange                       
-            ResultHandler<IEnumerable<EventModel>> expected = ResultHandler.Ok(this._eventModels);
+            var expected = ResultHandler.Ok(this._asyncEventModels);
 
             this._genericServiceMock
                 .Setup(items => items.Get(It.IsAny<IEnumerable<FilterStatement<EventModel>>>(),
                                         It.IsAny<OrderByStatement<EventModel>>(),
                                         It.IsAny<string>()))
-                .Returns(() => Task.FromResult(expected));
+                .Returns(() => expected);
 
             //Act
-            IActionResult actual = await this._controller.Get(new GetRequest<EventModelDTO>());
+            IActionResult actual = await this._controller.Search(new GetRequest<EventModelDTO>());
 
             //Assert
-            AssertHttpCode<OkObjectResult>(actual, this._eventModelsDTOs.GetHashCode());            
+            AssertHttpCode<OkObjectResult>(actual, 0);
+            OkObjectResult okObjectResult = actual as OkObjectResult;
+            var list = okObjectResult.Value as List<EventModelDTO>;
+
+            CollectionAssert.AreEqual(this._eventModelsDTOs, list);
         }
         [Test]
         public async Task Get_WhenCalledWithNull_ShouldReturnOk()
         {
             //Arrange
-            ResultHandler<IEnumerable<EventModel>> expected = ResultHandler.Ok(this._eventModels);
+            var expected = ResultHandler.Ok(this._asyncEventModels);
 
             this._genericServiceMock
                 .Setup(items => items.Get(It.IsAny<IEnumerable<FilterStatement<EventModel>>>(),
                                         It.IsAny<OrderByStatement<EventModel>>(),
                                         It.IsAny<string>()))
-                .Returns(() => Task.FromResult(expected));
+                .Returns(() => expected);
 
             //Act
-            IActionResult actual = await this._controller.Get(null);
+            IActionResult actual = await this._controller.Search(null);
 
-            //Assert
-            AssertHttpCode<OkObjectResult>(actual, this._eventModelsDTOs.GetHashCode());
+            //Assert            
+            AssertHttpCode<OkObjectResult>(actual, 0);
+            OkObjectResult okObjectResult = actual as OkObjectResult;
+            var list = okObjectResult.Value as List<EventModelDTO>;
+
+            CollectionAssert.AreEqual(this._eventModelsDTOs, list);
         }
         [Test]
         public async Task Get_WhenServiceHasError_ShouldReturnStatusCode500()
         {
             //Arrange
-            ResultHandler<IEnumerable<EventModel>> expected = ResultHandler.Fail<IEnumerable<EventModel>>(ErrorCode.Unknown);
+            var expected = ResultHandler.Fail<IAsyncEnumerable<EventModel>>(ErrorCode.Unknown);
 
             this._genericServiceMock
                 .Setup(items => items.Get(It.IsAny<IEnumerable<FilterStatement<EventModel>>>(),
                                         It.IsAny<OrderByStatement<EventModel>>(),
                                         It.IsAny<string>()))
-                .Returns(() => Task.FromResult(expected));
+                .Returns(() => expected);
 
             //Act
-            IActionResult actual = await this._controller.Get(new GetRequest<EventModelDTO>());
+            IActionResult actual = await this._controller.Search(new GetRequest<EventModelDTO>());
 
             //Assert                       
             AssertHttpCode<ObjectResult>(actual, expected.ErrorCode.GetHashCode());            
@@ -129,7 +140,7 @@ namespace CalendarEvents.Tests
                 .Throws(new Exception());                
 
             //Act
-            IActionResult actual = await this._controller.Get(new GetRequest<EventModelDTO>());
+            IActionResult actual = await this._controller.Search(new GetRequest<EventModelDTO>());
 
             //Assert       
             AssertHttpCode<ObjectResult>(actual, expected.ErrorCode.GetHashCode());
@@ -142,7 +153,7 @@ namespace CalendarEvents.Tests
         {
             //Arrange
             //Act
-            IActionResult actual = await this._controller.Get(new Guid());
+            IActionResult actual = await this._controller.GetById(new Guid());
 
             //Assert
             AssertHttpCode<BadRequestObjectResult>(actual, 0);
@@ -157,7 +168,7 @@ namespace CalendarEvents.Tests
                 .Returns(() => Task.FromResult(expected));
 
             //Act
-            IActionResult actual = await this._controller.Get(expected.Value.Id);
+            IActionResult actual = await this._controller.GetById(expected.Value.Id);
 
             //Assert
             AssertHttpCode<OkObjectResult>(actual, this._eventModelsDTOs.First().GetHashCode());
@@ -173,7 +184,7 @@ namespace CalendarEvents.Tests
                 .Returns(() => Task.FromResult(expected));
            
             //Act
-            IActionResult actual = await this._controller.Get(Guid.NewGuid());
+            IActionResult actual = await this._controller.GetById(Guid.NewGuid());
 
             //Assert
             AssertHttpCode<ObjectResult>(actual, expected.ErrorCode.GetHashCode());
@@ -189,7 +200,7 @@ namespace CalendarEvents.Tests
                 .Throws(new Exception());            
 
             //Act
-            IActionResult actual = await this._controller.Get(new GetRequest<EventModelDTO>());
+            IActionResult actual = await this._controller.Search(new GetRequest<EventModelDTO>());
 
             //Assert
             AssertHttpCode<ObjectResult>(actual, expected.ErrorCode.GetHashCode());            
@@ -204,7 +215,7 @@ namespace CalendarEvents.Tests
             this._controller.ModelState.AddModelError(Guid.NewGuid().ToString(), Guid.NewGuid().ToString());
             
             //Act
-            IActionResult actual = await this._controller.Post(null);
+            IActionResult actual = await this._controller.Insert(null);
 
             //Assert
             AssertHttpCode<BadRequestObjectResult>(actual, 0);
@@ -220,7 +231,7 @@ namespace CalendarEvents.Tests
                 .Returns(() => Task.FromResult(expected));
 
             //Act
-            IActionResult actual = await this._controller.Post(this._eventModelPostsDTOs);
+            IActionResult actual = await this._controller.Insert(this._eventModelPostsDTOs);
 
             //Assert            
             AssertHttpCode<CreatedAtActionResult>(actual, this._eventModelPostsDTOs.GetHashCode());
@@ -236,7 +247,7 @@ namespace CalendarEvents.Tests
                 .Returns(() => Task.FromResult(expected));
 
             //Act
-            IActionResult actual = await this._controller.Post(this._eventModelPostsDTOs);
+            IActionResult actual = await this._controller.Insert(this._eventModelPostsDTOs);
 
             //Assert
             AssertHttpCode<ObjectResult>(actual, expected.ErrorCode.GetHashCode());
@@ -252,7 +263,7 @@ namespace CalendarEvents.Tests
                 .Throws(new Exception());
 
             //Act
-            IActionResult actual = await this._controller.Post(null);
+            IActionResult actual = await this._controller.Insert(null);
 
             //Assert
             AssertHttpCode<ObjectResult>(actual, expected.ErrorCode.GetHashCode());
@@ -267,7 +278,7 @@ namespace CalendarEvents.Tests
             this._controller.ModelState.AddModelError(Guid.NewGuid().ToString(), Guid.NewGuid().ToString());
 
             //Act
-            IActionResult actual = await this._controller.Put(null);
+            IActionResult actual = await this._controller.Update(null);
 
             //Assert
             AssertHttpCode<BadRequestObjectResult>(actual, 0);
@@ -290,7 +301,7 @@ namespace CalendarEvents.Tests
                 .Returns(Guid.Parse(this._eventModels.First().OwnerId));
 
             //Act
-            IActionResult actual = await this._controller.Put(new EventPutRequest());
+            IActionResult actual = await this._controller.Update(new EventPutRequest());
 
             //Assert
             AssertHttpCode<OkObjectResult>(actual, this._eventModelsDTOs.First().GetHashCode());            
@@ -314,7 +325,7 @@ namespace CalendarEvents.Tests
 
             //Act
             EventPutRequest eventPutRequest = new EventPutRequest();
-            IActionResult actual = await this._controller.Put(eventPutRequest);
+            IActionResult actual = await this._controller.Update(eventPutRequest);
 
             //Assert
             AssertHttpCode<UnauthorizedObjectResult>(actual, eventPutRequest.GetHashCode());
@@ -330,7 +341,7 @@ namespace CalendarEvents.Tests
                 .Returns(() => Task.FromResult(expected));
 
             //Act
-            IActionResult actual = await this._controller.Put(new EventPutRequest());
+            IActionResult actual = await this._controller.Update(new EventPutRequest());
 
             //Assert
             AssertHttpCode<ObjectResult>(actual, expected.ErrorCode.GetHashCode());
@@ -346,7 +357,7 @@ namespace CalendarEvents.Tests
                 .Throws(new Exception());
 
             //Act
-            IActionResult actual = await this._controller.Put(new EventPutRequest());
+            IActionResult actual = await this._controller.Update(new EventPutRequest());
 
             //Assert
             AssertHttpCode<ObjectResult>(actual, expected.ErrorCode.GetHashCode());
@@ -414,9 +425,9 @@ namespace CalendarEvents.Tests
             //Assert
             AssertHttpCode<ObjectResult>(actual, expected.ErrorCode.GetHashCode());
         }
-        #endregion
+        #endregion        
 
-        private void AssertHttpCode<T>(T expected, IActionResult actual, int hashCode) where T : ObjectResult
+        private void AssertHttpCode<T>(IActionResult actual, int hashCode) where T : ObjectResult
         {
             Assert.IsNotNull(actual);
             T actualObjectResult = actual as T;
@@ -439,7 +450,7 @@ namespace CalendarEvents.Tests
                     break;
                 default:
                     throw new NotImplementedException();
-            }            
+            }
             if (hashCode != 0)
                 Assert.AreEqual(actualObjectResult.Value.GetHashCode(), hashCode);
         }                   

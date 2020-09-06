@@ -1,4 +1,5 @@
-﻿using CalendarEvents.Common;
+﻿using AutoMapper;
+using CalendarEvents.Common;
 using CalendarEvents.DataAccess;
 using CalendarEvents.Models;
 using Microsoft.AspNetCore.Hosting;
@@ -8,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace CalendarEvents.Tests
 {
@@ -15,7 +17,7 @@ namespace CalendarEvents.Tests
     {
         public static class EventsFacade
         {
-            public static List<EventModel> BuildEventModels(int count = 1)
+            public static IEnumerable<EventModel> BuildEventModels(int count = 1)
             {
                 List<EventModel> resultList = new List<EventModel>(count);
 
@@ -47,6 +49,18 @@ namespace CalendarEvents.Tests
                 };
             }
 
+            public static async IAsyncEnumerable<EventModel> BuildIAsyncEnumerable(IEnumerable<EventModel> eventModels = null)
+            {
+                if (eventModels == null)
+                    eventModels = BuildEventModels();
+
+                foreach (EventModel eventModel in eventModels)
+                {
+                    await Task.CompletedTask;
+                    yield return eventModel;
+                }
+            }
+
             public static List<EventModelPostDTO> BuildEventModelPostsDTOs(IEnumerable<EventModel> eventModels = null)
             {
                 if (eventModels == null)
@@ -62,14 +76,20 @@ namespace CalendarEvents.Tests
                 return result;
             }
 
-            public static List<EventModelDTO> BuildEventModelDTOList(IEnumerable<EventModel> eventModels = null)
+            public static async Task<List<EventModelDTO>> BuildEventModelDTOs(IAsyncEnumerable<EventModel> eventModels)
             {
                 if (eventModels == null)
-                    eventModels = BuildEventModels();
+                    eventModels = BuildIAsyncEnumerable();
 
                 List<EventModelDTO> result = new List<EventModelDTO>();
 
-                foreach (var eventModel in eventModels)
+                var mappingConfig = new MapperConfiguration(mc =>
+                {
+                    mc.AddProfile(new MappingProfile());
+                });
+                IMapper mapper = mappingConfig.CreateMapper();
+
+                await foreach (var eventModel in eventModels)
                 {
                     result.Add(BuildEventModelDTO(eventModel));
                 }
@@ -125,13 +145,23 @@ namespace CalendarEvents.Tests
 
                 return resultList;
             }
-            public static FilterStatement<TEntity> BuildFilterStatement<TEntity>()
+            public static FilterStatement<TEntity> BuildFilterStatement<TEntity>(
+                FilterOperation filterOperation = FilterOperation.Undefined,
+                string propertyName = null,
+                object value = null)
             {
+                if (filterOperation == FilterOperation.Undefined)
+                    filterOperation = FilterOperation.Equal;
+                if (string.IsNullOrEmpty(propertyName))
+                    propertyName = "Id";
+                if (value == null)
+                    value = Guid.NewGuid().ToString();
+
                 return new FilterStatement<TEntity>()
                 {
-                    Operation = FilterOperation.Equal,
-                    PropertyName = "Id",
-                    Value = Guid.NewGuid().ToString()
+                    Operation = filterOperation,
+                    PropertyName = propertyName,
+                    Value = value
                 };
             }
         }
@@ -142,7 +172,7 @@ namespace CalendarEvents.Tests
             {
                 return new OrderByStatement<TEntity>()
                 {
-                    PropertyName = "Id",
+                    PropertyName = "OwnerId",
                     Direction = OrderByDirection.Desc
                 };
             }

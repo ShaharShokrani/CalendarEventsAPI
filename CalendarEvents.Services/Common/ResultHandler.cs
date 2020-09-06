@@ -59,7 +59,10 @@ namespace CalendarEvents.Services
 
         public static ResultHandler<T> Ok<T>(T value)
         {
-            return new ResultHandler<T>(value, true, ErrorCode.Undefined);
+            if (value == null)
+                return new ResultHandler<T>(value, false, ErrorCode.NotFound);
+            else
+                return new ResultHandler<T>(value, true, ErrorCode.Undefined);
         }
 
         public static ResultHandler Combine(params ResultHandler[] results)

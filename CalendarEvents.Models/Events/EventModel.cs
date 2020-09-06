@@ -38,5 +38,44 @@ namespace CalendarEvents.Models
         public DateTime CreateDate { get; set; }
         public DateTime UpdateDate { get; set; }
         public string OwnerId { get; set; }
+        public override bool Equals(object obj)
+        {
+            var other = obj as EventModelDTO;
+            if (other == null)
+            {
+                return false;
+            }
+
+            return Base64Id == other.Base64Id &&
+                CreateDate == other.CreateDate &&
+                Description == other.Description &&
+                Details == other.Details &&
+                End == other.End &&
+                Id == other.Id &&
+                ImagePath == other.ImagePath &&
+                IsAllDay == other.IsAllDay &&
+                OwnerId == other.OwnerId &&
+                Start == other.Start &&
+                Title == other.Title &&
+                UpdateDate == other.UpdateDate &&
+                URL == other.URL;
+        }
+        public override int GetHashCode()
+        {
+            return this.Base64Id.GetHashCode() +
+                this.CreateDate.GetHashCode() +
+                this.Description.GetHashCode() +
+                this.Details.GetHashCode() +
+                this.End.GetHashCode() +
+                this.Id.GetHashCode() +
+                this.ImagePath.GetHashCode() +
+                this.IsAllDay.GetHashCode() +
+                this.OwnerId.GetHashCode() +
+                this.Start.GetHashCode() +
+                this.Title.GetHashCode() +
+                this.UpdateDate.GetHashCode() +
+                this.URL.GetHashCode();
+        }
+
     }
 }

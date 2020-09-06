@@ -11,9 +11,12 @@ namespace CalendarEvents.Services.Tests
 {
     public class OrderByServiceTests
     {
+        private OrderByService _service;
+
         [SetUp]
         public void Setup()
         {
+            this._service = new OrderByService();
         }
 
         //1. Is Ok
@@ -28,25 +31,22 @@ namespace CalendarEvents.Services.Tests
         {
             //Arrange
             OrderByStatement<EventModel> orderByStatement = TestsFacade.OrderBytatementFacade.BuildOrderByStatement<EventModel>();
-            OrderByService service = new OrderByService();
 
             //Act
-            ResultHandler<Func<IQueryable<EventModel>, IOrderedQueryable<EventModel>>> result = service.GetOrderBy<EventModel>(orderByStatement);
+            ResultHandler<Func<IQueryable<EventModel>, IOrderedQueryable<EventModel>>> result = this._service.GetOrderBy<EventModel>(orderByStatement);
 
             //Assert
             Assert.IsNotNull(result);
-            Assert.IsInstanceOf<ResultHandler<Func<IQueryable<EventModel>,IOrderedQueryable<EventModel>>>>(result);
+            Assert.IsInstanceOf<ResultHandler<Func<IQueryable<EventModel>, IOrderedQueryable<EventModel>>>>(result);
             Assert.IsTrue(result.Success);
         }
         [Test] public void GetOrderBy_WhenOrderByStatementNull_ShouldReturnFail()
         {
             //Arrange
-            OrderByStatement<EventModel> orderByStatement = null;            
-
-            OrderByService service = new OrderByService();
+            OrderByStatement<EventModel> orderByStatement = null;
 
             //Act
-            ResultHandler<Func<IQueryable<EventModel>, IOrderedQueryable<EventModel>>> result = service.GetOrderBy<EventModel>(orderByStatement);
+            ResultHandler<Func<IQueryable<EventModel>, IOrderedQueryable<EventModel>>> result = this._service.GetOrderBy<EventModel>(orderByStatement);
 
             //Assert
             Assert.IsNotNull(result);
@@ -58,12 +58,10 @@ namespace CalendarEvents.Services.Tests
         {
             //Arrange
             OrderByStatement<EventModel> orderByStatement = TestsFacade.OrderBytatementFacade.BuildOrderByStatement<EventModel>();
-            orderByStatement.PropertyName = Guid.NewGuid().ToString();            
-
-            OrderByService service = new OrderByService();
+            orderByStatement.PropertyName = Guid.NewGuid().ToString();
 
             //Act
-            ResultHandler<Func<IQueryable<EventModel>, IOrderedQueryable<EventModel>>> result = service.GetOrderBy<EventModel>(orderByStatement);
+            ResultHandler<Func<IQueryable<EventModel>, IOrderedQueryable<EventModel>>> result = this._service.GetOrderBy<EventModel>(orderByStatement);
 
             //Assert
             Assert.IsNotNull(result);

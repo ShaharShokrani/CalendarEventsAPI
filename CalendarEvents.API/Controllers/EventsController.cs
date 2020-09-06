@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 
 namespace CalendarEvents.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[action]")]    
     [ApiController]
     public class EventsController : ControllerBase
     {        
@@ -34,8 +34,8 @@ namespace CalendarEvents.Controllers
 
         // GET api/events
         [AllowAnonymous]
-        [HttpGet]
-        public async Task<IActionResult> Get([FromQuery]GetRequest<EventModelDTO> genericRequestDTO = null)
+        [HttpPost]
+        public async Task<IActionResult> Search([FromBody]GetRequest<EventModelDTO> genericRequestDTO = null)
         {
             try
             {
@@ -43,16 +43,20 @@ namespace CalendarEvents.Controllers
                     genericRequestDTO = new GetRequest<EventModelDTO>();
 
                 GetRequest<EventModel> genericRequest = this._mapper.Map<GetRequest<EventModel>>(genericRequestDTO);
-                ResultHandler<IEnumerable<EventModel>> result = await this._eventsService.Get(genericRequest.Filters, genericRequest.OrderBy, genericRequest.IncludeProperties);
-                if (result.Success)
+                var getResultHandler = this._eventsService.Get(genericRequest.Filters, genericRequest.OrderBy, genericRequest.IncludeProperties);
+                if (getResultHandler.Success)
                 {
-                    IEnumerable<EventModel> list = result.Value as IEnumerable<EventModel>;
-                    IEnumerable<EventModelDTO> listDTO = this._mapper.Map<IEnumerable<EventModelDTO>>(list);
-                    return Ok(listDTO);
+                    List<EventModelDTO> result = new List<EventModelDTO>();
+                    await foreach (EventModel eventModel in getResultHandler.Value)
+                    {
+                        EventModelDTO eventModelDTO = this._mapper.Map<EventModelDTO>(eventModel);
+                        result.Add(eventModelDTO);
+                    }
+                    return Ok(result);
                 }
                 else
                 {
-                    return StatusCode(500, result.ErrorCode);
+                    return StatusCode(500, getResultHandler.ErrorCode);
                 }
             }
             catch (Exception ex)
@@ -63,8 +67,8 @@ namespace CalendarEvents.Controllers
         }
 
         // GET api/events)
-        [HttpGet("{id}", Name = "GET")]
-        public async Task<IActionResult> Get(Guid id)
+        [HttpGet]
+        public async Task<IActionResult> GetById(Guid id)
         {
             try
             {
@@ -103,7 +107,7 @@ namespace CalendarEvents.Controllers
         // POST api/events
         [HttpPost]
         [Authorize(Policy = "Events.Post")]
-        public async Task<IActionResult> Post([FromBody] IEnumerable<EventModelPostDTO> requests = null)
+        public async Task<IActionResult> Insert(IEnumerable<EventModelPostDTO> requests = null)
         {
             try
             {
@@ -124,7 +128,7 @@ namespace CalendarEvents.Controllers
                 if (rh.Success)
                 {
                     IEnumerable<EventModelPostDTO> listDTO = this._mapper.Map<IEnumerable<EventModelPostDTO>>(items);
-                    return CreatedAtAction(nameof(Post), listDTO);
+                    return CreatedAtAction(nameof(Insert), listDTO);
                 }
                 else
                 {
@@ -141,9 +145,9 @@ namespace CalendarEvents.Controllers
         // PUT api/events/
         //[Authorize]
         //[ValidateAntiForgeryToken]
-        [HttpPut]        
+        [HttpPost]
         [Authorize(Policy = "Events.Put")]
-        public async Task<IActionResult> Put([FromBody] EventPutRequest request)
+        public async Task<IActionResult> Update(EventPutRequest request)
         {
             try
             {

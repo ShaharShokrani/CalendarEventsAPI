@@ -34,7 +34,7 @@ namespace CalendarEvents.DataAccess
             return await _context.SaveChangesAsync();
         }
         //TODO: Add paging support
-        public virtual Task<List<TEntity>> Get(Expression<Func<TEntity, bool>> filter = null, 
+        public virtual IAsyncEnumerable<TEntity> Get(Expression<Func<TEntity, bool>> filter = null, 
             Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null, 
             string includeProperties = "",
             int? pageIndex = null,
@@ -59,10 +59,10 @@ namespace CalendarEvents.DataAccess
 
             if (orderBy != null)
             {
-                return orderBy(query).ToListAsync();
+                return orderBy(query).AsAsyncEnumerable();
             }
 
-            return query.ToListAsync();
+            return query.AsAsyncEnumerable();
         }
 
         public virtual async Task<TEntity> GetById(Guid id)
