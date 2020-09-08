@@ -68,6 +68,7 @@ namespace CalendarEvents.Controllers
 
         // GET api/events)
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetById(Guid id)
         {
             try
@@ -82,13 +83,13 @@ namespace CalendarEvents.Controllers
                 {
                     EventModel eventModel = result.Value as EventModel;
                     EventModelDTO eventModelDTO = this._mapper.Map<EventModelDTO>(eventModel);
-                    
+
                     return Ok(eventModelDTO);
                 }
+                else if (result.ErrorCode == ErrorCode.NotFound)
+                    return NotFound($"Not found entity with Id: {id}");
                 else
-                {
                     return StatusCode(500, result.ErrorCode);
-                }
             }
             catch (Exception ex)
             {

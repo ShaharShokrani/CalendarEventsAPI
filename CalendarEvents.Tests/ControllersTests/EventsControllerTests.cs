@@ -190,6 +190,23 @@ namespace CalendarEvents.Tests
             AssertHttpCode<ObjectResult>(actual, expected.ErrorCode.GetHashCode());
         }
         [Test]
+        public async Task GetById_WhenEntityNotFound_ShouldReturnStatusCode404()
+        {
+            //Arrange
+            ResultHandler<EventModel> expected = ResultHandler.Fail<EventModel>(ErrorCode.NotFound);
+
+            this._genericServiceMock
+                .Setup(items => items.GetById(It.IsAny<Guid>()))
+                .Returns(() => Task.FromResult(expected));
+
+            //Act
+            Guid id = Guid.NewGuid();
+            IActionResult actual = await this._controller.GetById(id);
+
+            //Assert            
+            AssertHttpCode<NotFoundObjectResult>(actual, $"Not found entity with Id: {id}".GetHashCode());
+        }
+        [Test]
         public async Task GetById_WhenServiceThrowException_ShouldReturnStatusCode500()
         {
             //Arrange
@@ -444,7 +461,10 @@ namespace CalendarEvents.Tests
                     break;
                 case CreatedAtActionResult x:
                     Assert.AreEqual(201, x.StatusCode);
-                    break;                    
+                    break;
+                case NotFoundObjectResult x:
+                    Assert.AreEqual(404, x.StatusCode);
+                    break;
                 case ObjectResult x:
                     Assert.AreEqual(500, x.StatusCode);
                     break;
