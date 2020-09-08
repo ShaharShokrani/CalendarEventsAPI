@@ -251,7 +251,7 @@ namespace CalendarEvents.Tests
             IActionResult actual = await this._controller.Insert(this._eventModelPostsDTOs);
 
             //Assert            
-            AssertHttpCode<CreatedAtActionResult>(actual, this._eventModelPostsDTOs.GetHashCode());
+            AssertHttpCode<CreatedAtActionResult>(actual, this._eventModelsDTOs.GetHashCode());
         }
         [Test]
         public async Task Post_WhenServiceHasError_ShouldReturnStatusCode500()

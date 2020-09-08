@@ -107,7 +107,7 @@ namespace CalendarEvents.Controllers
 
         // POST api/events
         [HttpPost]
-        [Authorize(Policy = "Events.Post")]
+        [Authorize(Policy = "Events.Insert")]
         public async Task<IActionResult> Insert(IEnumerable<EventModelPostDTO> requests = null)
         {
             try
@@ -128,7 +128,7 @@ namespace CalendarEvents.Controllers
                 ResultHandler rh = await this._eventsService.InsertRange(items);
                 if (rh.Success)
                 {
-                    IEnumerable<EventModelPostDTO> listDTO = this._mapper.Map<IEnumerable<EventModelPostDTO>>(items);
+                    IEnumerable<EventModelDTO> listDTO = this._mapper.Map<IEnumerable<EventModelDTO>>(items);
                     return CreatedAtAction(nameof(Insert), listDTO);
                 }
                 else
@@ -147,7 +147,7 @@ namespace CalendarEvents.Controllers
         //[Authorize]
         //[ValidateAntiForgeryToken]
         [HttpPost]
-        [Authorize(Policy = "Events.Put")]
+        [Authorize(Policy = "Events.Update")]
         public async Task<IActionResult> Update(EventPutRequest request)
         {
             try

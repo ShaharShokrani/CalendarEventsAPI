@@ -93,7 +93,7 @@ namespace CalendarEvents
             services.AddAuthorization(authorizationOptions =>
             {
                 authorizationOptions.AddPolicy(
-                    "Events.Put",
+                    "Events.Update",
                     policyBuilder =>
                     {
                         //policyBuilder.RequireAuthenticatedUser();
@@ -103,7 +103,7 @@ namespace CalendarEvents
                         policyBuilder.RequireClaim("scope", "calendareventsapi");
                     });
                 authorizationOptions.AddPolicy(
-                    "Events.Post",
+                    "Events.Insert",
                     policyBuilder =>
                     {
                         policyBuilder.RequireClaim("scope", "calendareventsapi");
