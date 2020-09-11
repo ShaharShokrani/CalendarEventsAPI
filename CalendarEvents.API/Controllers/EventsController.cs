@@ -67,8 +67,8 @@ namespace CalendarEvents.Controllers
         }
 
         // GET api/events)
-        [HttpGet]
         [AllowAnonymous]
+        [HttpPost]
         public async Task<IActionResult> GetById(Guid id)
         {
             try
@@ -99,9 +99,7 @@ namespace CalendarEvents.Controllers
         }
 
         // POST api/events
-        //[Authorize]
         //[ValidateAntiForgeryToken]
-        //[HttpPost]
         //TODO: Use a ModelBinder.
         //public async Task<IActionResult> Post([FromBody] EventPostRequest request = null)
 
@@ -142,9 +140,7 @@ namespace CalendarEvents.Controllers
                 return StatusCode(500, ErrorCode.Unknown);
             }
         }
-
-        // PUT api/events/
-        //[Authorize]
+        
         //[ValidateAntiForgeryToken]
         [HttpPost]
         [Authorize(Policy = "Events.Update")]
@@ -197,11 +193,9 @@ namespace CalendarEvents.Controllers
                 return StatusCode(500, ErrorCode.Unknown);                
             }
         }
-
-        // DELETE api/events/c4df7159-2402-4f49-922c-1a2caef02de2
-        //[Authorize]
-        //[ValidateAntiForgeryToken]
-        [HttpDelete("{id}")]
+        
+        //[ValidateAntiForgeryToken]        
+        [HttpPost]
         [Authorize(Policy = "Events.Delete")]
         public async Task<IActionResult> Delete(Guid id)
         {
