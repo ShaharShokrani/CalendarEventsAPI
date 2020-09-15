@@ -113,14 +113,24 @@ namespace CalendarEvents
             string migrationsAssembly = typeof(CalendarEvents.DataAccess.ApplicationDbContext)
                 .GetTypeInfo().Assembly.GetName().Name;
 
-            string server = Environment.GetEnvironmentVariable("DatabaseServer") ?? "localhost";
-            string database = Environment.GetEnvironmentVariable("DatabaseName") ?? "CalendarEventsAPIDb";
-            string port = Environment.GetEnvironmentVariable("DatabasePort") ?? "1443";
-            string user = Environment.GetEnvironmentVariable("DatabaseUser") ?? "sa";
-            string password = Environment.GetEnvironmentVariable("DatabasePassword") ?? "<YourStrong@Passw0rd>";
+            string connectionString = Environment.GetEnvironmentVariable("ConnectionString");
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                string server = Environment.GetEnvironmentVariable("DatabaseServer") ?? "localhost";
+                string database = Environment.GetEnvironmentVariable("DatabaseName") ?? "CalendarEventsAPIDb";
+                string port = Environment.GetEnvironmentVariable("DatabasePort") ?? "1443";
+                string user = Environment.GetEnvironmentVariable("DatabaseUser") ?? "sa";
+                string password = Environment.GetEnvironmentVariable("DatabasePassword") ?? "<YourStrong@Passw0rd>";
+                connectionString = $"Server={server},{port};Database={database};User ID={user};Password={password};";
+            }
+            else
+            {
+                Console.WriteLine("==================Azure connection string=======================");
+                Console.WriteLine(connectionString);
+                Console.WriteLine("==================Azure connection string=======================");
+            }
 
-            string connectionString = $"Server={server},{port};Database={database};User ID={user};Password={password};";
-            Console.WriteLine(connectionString);
+            
             services.AddDbContext<ApplicationDbContext>(options =>
             {
                 options.UseSqlServer(
