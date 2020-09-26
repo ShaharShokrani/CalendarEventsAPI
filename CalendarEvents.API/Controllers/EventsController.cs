@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoMapper;
 using CalendarEvents.Models;
@@ -32,7 +31,6 @@ namespace CalendarEvents.Controllers
             this._log = log ?? throw new ArgumentNullException(nameof(log));
         }
 
-        // GET api/events
         [AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> Search([FromBody]GetRequest<EventModelDTO> genericRequestDTO = null)
@@ -66,7 +64,6 @@ namespace CalendarEvents.Controllers
             }
         }
 
-        // GET api/events)
         [AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> GetById(Guid id)
@@ -98,12 +95,6 @@ namespace CalendarEvents.Controllers
             }
         }
 
-        // POST api/events
-        //[ValidateAntiForgeryToken]
-        //TODO: Use a ModelBinder.
-        //public async Task<IActionResult> Post([FromBody] EventPostRequest request = null)
-
-        // POST api/events
         [HttpPost]
         [Authorize(Policy = "Events.Insert")]
         public async Task<IActionResult> Insert(IEnumerable<EventModelPostDTO> requests = null)
@@ -141,7 +132,6 @@ namespace CalendarEvents.Controllers
             }
         }
         
-        //[ValidateAntiForgeryToken]
         [HttpPost]
         [Authorize(Policy = "Events.Update")]
         public async Task<IActionResult> Update(EventPutRequest request)
@@ -194,7 +184,6 @@ namespace CalendarEvents.Controllers
             }
         }
         
-        //[ValidateAntiForgeryToken]        
         [HttpPost]
         [Authorize(Policy = "Events.Delete")]
         public async Task<IActionResult> Delete(Guid id)

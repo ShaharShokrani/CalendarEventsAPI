@@ -24,5 +24,6 @@ namespace CalendarEvents.DataAccess
         //}
 
         public virtual DbSet<EventModel> Events { get; set; }
+        public virtual DbSet<UserModel> Users { get; set; }
     }
 }

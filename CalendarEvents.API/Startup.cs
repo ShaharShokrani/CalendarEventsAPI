@@ -15,8 +15,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Logging;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Reflection;
+using System.Text;
 
 namespace CalendarEvents
 {
@@ -83,11 +85,17 @@ namespace CalendarEvents
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;                
-            }).AddJwtBearer(o =>
+            })
+            .AddJwtBearer(options =>
             {
-                o.Authority = authority;
-                o.Audience = "calendareventsapi";
-                o.RequireHttpsMetadata = false;                
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII
+                        .GetBytes(Configuration.GetSection("AppSettings:Token").Value)),
+                    ValidateIssuer = false,
+                    ValidateAudience = false
+                };
             });
 
             services.AddAuthorization(authorizationOptions =>
@@ -96,45 +104,45 @@ namespace CalendarEvents
                     "Events.Update",
                     policyBuilder =>
                     {
-                        //policyBuilder.RequireAuthenticatedUser();
+                        policyBuilder.RequireAuthenticatedUser();
                         //policyBuilder.AddRequirements(
                         //    new MustOwnRequirement<EventModel>()
                         //);
-                        policyBuilder.RequireClaim("scope", "calendareventsapi");
+                        //policyBuilder.RequireClaim("scope", "calendareventsapi");
                     });
                 authorizationOptions.AddPolicy(
                     "Events.Insert",
                     policyBuilder =>
                     {
-                        policyBuilder.RequireClaim("scope", "calendareventsapi");
+                        policyBuilder.RequireAuthenticatedUser();
+                        //policyBuilder.RequireClaim("scope", "calendareventsapi");
                     });
             });
 
             string migrationsAssembly = typeof(CalendarEvents.DataAccess.ApplicationDbContext)
                 .GetTypeInfo().Assembly.GetName().Name;
 
-            string connectionString = Environment.GetEnvironmentVariable("ConnectionString");
-            if (string.IsNullOrEmpty(connectionString))
-            {
-                string server = Environment.GetEnvironmentVariable("DatabaseServer") ?? "localhost";
-                string database = Environment.GetEnvironmentVariable("DatabaseName") ?? "CalendarEventsAPIDb";
-                string port = Environment.GetEnvironmentVariable("DatabasePort") ?? "1443";
-                string user = Environment.GetEnvironmentVariable("DatabaseUser") ?? "sa";
-                string password = Environment.GetEnvironmentVariable("DatabasePassword") ?? "<YourStrong@Passw0rd>";
-                connectionString = $"Server={server},{port};Database={database};User ID={user};Password={password};";
-            }
-            else
-            {
-                Console.WriteLine("==================Azure connection string=======================");
-                Console.WriteLine(connectionString);
-                Console.WriteLine("==================Azure connection string=======================");
-            }
-
+            //string connectionString = Environment.GetEnvironmentVariable("ConnectionString");
+            //if (string.IsNullOrEmpty(connectionString))
+            //{
+            //    string server = Environment.GetEnvironmentVariable("DatabaseServer") ?? "localhost";
+            //    string database = Environment.GetEnvironmentVariable("DatabaseName") ?? "CalendarEventsAPIDb";
+            //    string port = Environment.GetEnvironmentVariable("DatabasePort") ?? "1443";
+            //    string user = Environment.GetEnvironmentVariable("DatabaseUser") ?? "sa";
+            //    string password = Environment.GetEnvironmentVariable("DatabasePassword") ?? "<YourStrong@Passw0rd>";
+            //    connectionString = $"Server={server},{port};Database={database};User ID={user};Password={password};";
+            //}
+            //else
+            //{
+            //    Console.WriteLine("==================Azure connection string=======================");
+            //    Console.WriteLine(connectionString);
+            //    Console.WriteLine("==================Azure connection string=======================");
+            //}
             
             services.AddDbContext<ApplicationDbContext>(options =>
             {
                 options.UseSqlServer(
-                    connectionString,
+                    Configuration.GetConnectionString("DefaultConnection"),
                     b => b.MigrationsAssembly(migrationsAssembly)
                 );
             });
@@ -144,6 +152,7 @@ namespace CalendarEvents
             //TODO: register all the generic service and repository with generic syntax like autofac does <>.
             services.AddScoped<IGenericService<EventModel>, GenericService<EventModel>>();
             services.AddScoped<IGenericRepository<EventModel>, GenericRepository<EventModel>>();
+            services.AddScoped<IAuthRepository, AuthRepository>();
             services.AddScoped<IUserService, UserService>();
             //services.AddScoped<IScrapingService, ScrapingService>(); //WIll be inside another project.
         }

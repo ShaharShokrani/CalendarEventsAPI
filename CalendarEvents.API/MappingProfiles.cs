@@ -19,6 +19,11 @@ namespace CalendarEvents
 
             CreateMap<GetRequest<EventModelDTO>, GetRequest<EventModel>>();
             CreateMap<GetRequest<EventModel>, GetRequest<EventModelDTO>>();
+
+            CreateMap<UserModel, UserListDTO>();
+            CreateMap<UserModel, UserForDetailedDTO>();
+            CreateMap<UserForUpdateDto, UserModel>();
+            CreateMap<UserForRegisterDTO, UserModel>();
         }
     }
 }
