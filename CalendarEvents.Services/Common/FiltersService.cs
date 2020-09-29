@@ -37,7 +37,7 @@ namespace CalendarEvents.Services
                 ParameterExpression parameterExpression = Expression.Parameter(typeof(T), "x");
                 Expression finalExpression = Expression.Constant(true);
 
-                foreach (var statement in _filterStatements)
+                foreach (var statement in this._filterStatements)
                 {
                     if (!statement.IsValid)
                     {
@@ -46,7 +46,15 @@ namespace CalendarEvents.Services
 
                     Type propType = typeof(T).GetProperty(statement.PropertyName).PropertyType;
                     TypeConverter converter = TypeDescriptor.GetConverter(propType);
-                    object convertedObject = converter.ConvertFrom(statement.Value);
+                    object convertedObject;
+                    try
+                    {
+                        convertedObject = converter.ConvertFrom(statement.Value.ToString());
+                    }
+                    catch
+                    {
+                        return ResultHandler.Fail<Expression<Func<T, bool>>>(ErrorCode.EntityNotValid);
+                    }                    
                     
                     var member = Expression.Property(parameterExpression, statement.PropertyName);
                     var constant = Expression.Constant(convertedObject);

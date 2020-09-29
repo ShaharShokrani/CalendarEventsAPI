@@ -16,14 +16,18 @@ namespace CalendarEvents
 
             CreateMap<EventModel, EventPutRequest>();
             CreateMap<EventPutRequest, EventModel>();
-
+            
             CreateMap<GetRequest<EventModelDTO>, GetRequest<EventModel>>();
             CreateMap<GetRequest<EventModel>, GetRequest<EventModelDTO>>();
+            CreateMap<GetRequest<EventModel>, GetRequest<EventModelDTO>>();
+
+            CreateMap<FilterStatement<EventModel>, FilterStatement<EventModelDTO>>();
+            CreateMap<FilterStatement<EventModelDTO>, FilterStatement<EventModel>>();
 
             CreateMap<UserModel, UserListDTO>();
-            CreateMap<UserModel, UserForDetailedDTO>();
-            CreateMap<UserForUpdateDto, UserModel>();
-            CreateMap<UserForRegisterDTO, UserModel>();
+            CreateMap<UserModel, UserDetailedDTO>();
+            CreateMap<UserUpdateDTO, UserModel>();
+            CreateMap<UserRegisterDTO, UserModel>();
         }
     }
 }

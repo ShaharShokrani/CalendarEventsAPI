@@ -1,6 +1,6 @@
 ﻿namespace CalendarEvents.Models
 {
-    public class UserForUpdateDto
+    public class UserUpdateDTO
     {
         public string Introduction { get; set; }
     }

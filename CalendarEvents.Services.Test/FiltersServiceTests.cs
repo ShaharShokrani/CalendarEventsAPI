@@ -104,7 +104,7 @@ namespace CalendarEvents.Services.Tests
         {
             //Arrange
             FilterStatement<EventModel> filterStatement = TestsFacade.FilterStatementFacade.BuildFilterStatement<EventModel>();
-            filterStatement.Value = 1;
+            filterStatement.Value = "1";
             filterStatement.PropertyName = "Id";
             IEnumerable<FilterStatement<EventModel>> filterStatements = new List<FilterStatement<EventModel>>()
             {

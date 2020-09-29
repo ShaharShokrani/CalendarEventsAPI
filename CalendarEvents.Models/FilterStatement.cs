@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.ComponentModel;
 using System.Reflection;
 
@@ -20,7 +21,7 @@ namespace CalendarEvents.Models
         public FilterOperation Operation { get; set; }
         /// <summary>
         /// Constant value that will interact with the property defined in this filter statement.
-        /// </summary>
+        /// </summary>        
         public object Value { get; set; }
         public bool IsValid
         {
@@ -31,21 +32,48 @@ namespace CalendarEvents.Models
                     return false;
                 }
 
-                PropertyInfo propertyInfo = typeof(TEntity).GetProperty(this.PropertyName);
+                //PropertyInfo propertyInfo = typeof(TEntity).GetProperty(this.PropertyName);
 
-                if (propertyInfo != null && // First validate if PropertyName Is valid.
-                    Operation != FilterOperation.Undefined)
-                {
-                    Type propType = propertyInfo.PropertyType;
-                    TypeConverter converter = TypeDescriptor.GetConverter(propType);
-                    if (converter.CanConvertFrom(this.Value.GetType()))
-                    {
-                        return true;
-                    }
-                }
+                //if (propertyInfo != null && // First validate if PropertyName Is valid.
+                //    Operation != FilterOperation.Undefined)
+                //{
+                //    Type propType = propertyInfo.PropertyType;
+                //    TypeConverter converter = TypeDescriptor.GetConverter(propType);
+                //    if (converter.CanConvertFrom(new MyContext(new EventModel(), this.PropertyName), this.Value.GetType()))
+                //    {
+                //        return true;
+                //    }
+                //}
 
-                return false;
+                return true;
             }
         }
     }
+
+    //public class MyContext : ITypeDescriptorContext
+    //{
+    //    public MyContext(object instance, string propertyName)
+    //    {
+    //        Instance = instance;
+    //        PropertyDescriptor = TypeDescriptor.GetProperties(instance)[propertyName];
+    //    }
+
+    //    public object Instance { get; private set; }
+    //    public PropertyDescriptor PropertyDescriptor { get; private set; }
+    //    public IContainer Container { get; private set; }
+
+    //    public void OnComponentChanged()
+    //    {
+    //    }
+
+    //    public bool OnComponentChanging()
+    //    {
+    //        return true;
+    //    }
+
+    //    public object GetService(Type serviceType)
+    //    {
+    //        return null;
+    //    }
+    //}
 }

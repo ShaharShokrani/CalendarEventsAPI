@@ -37,7 +37,7 @@ namespace CalendarEvents.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Register(UserForRegisterDTO userForRegisterDTO)
+        public async Task<IActionResult> Register(UserRegisterDTO userForRegisterDTO)
         {
             userForRegisterDTO.Email = userForRegisterDTO.Email.ToLower();
 
@@ -48,7 +48,7 @@ namespace CalendarEvents.Controllers
 
             var createdUser = await _authRepository.Register(userToCreate, userForRegisterDTO.Password);
 
-            var userToReturn = _mapper.Map<UserForDetailedDTO>(createdUser);
+            var userToReturn = _mapper.Map<UserDetailedDTO>(createdUser);
 
             return CreatedAtAction(nameof(Register), userToReturn);
         }

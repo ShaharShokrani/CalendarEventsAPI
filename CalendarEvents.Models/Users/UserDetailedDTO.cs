@@ -2,7 +2,7 @@
 
 namespace CalendarEvents.Models
 {
-    public class UserForDetailedDTO
+    public class UserDetailedDTO
     {
         public int Id { get; set; }
         public string Email { get; set; }

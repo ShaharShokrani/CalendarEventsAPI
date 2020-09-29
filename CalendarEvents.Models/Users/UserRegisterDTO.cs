@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace CalendarEvents.Models
 {
-    public class UserForRegisterDTO
+    public class UserRegisterDTO
     {
         [Required]
         [EmailAddress]
@@ -16,7 +16,7 @@ namespace CalendarEvents.Models
         public DateTime Created { get; set; }
         public DateTime LastActive { get; set; }
 
-        public UserForRegisterDTO()
+        public UserRegisterDTO()
         {
             Created = DateTime.Now;
             LastActive = DateTime.Now;

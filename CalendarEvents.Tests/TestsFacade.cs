@@ -161,7 +161,7 @@ namespace CalendarEvents.Tests
                 {
                     Operation = filterOperation,
                     PropertyName = propertyName,
-                    Value = value
+                    Value = value.ToString()
                 };
             }
         }
@@ -203,7 +203,7 @@ namespace CalendarEvents.Tests
                 {
                     Operation = FilterOperation.Equal,
                     PropertyName = "Id",
-                    Value = Guid.NewGuid()
+                    Value = Guid.NewGuid().ToString()
                 };
             }
         }
