@@ -1,23 +1,25 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 
-namespace CalendarEvents.Models
+#nullable disable
+
+namespace CalendarEvents.DataAccess.Mirror
 {
-    public class EventModelPostDTO
+    public partial class Event
     {
-        [Required]
+        public Guid Id { get; set; }
         public DateTime Start { get; set; }
-        [Required]
         public DateTime End { get; set; }
-        [Required]
         public bool IsAllDay { get; set; }
-        public string URL { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
         public string Details { get; set; }
+        public string Url { get; set; }
         public string ImagePath { get; set; }
+        public string Base64Id { get; set; }
+        public DateTime CreateDate { get; set; }
+        public DateTime UpdateDate { get; set; }
+        public string OwnerId { get; set; }
         public int Audience { get; set; }
     }
 }

@@ -1,5 +1,0 @@
-cd .\CalendarEvents.DataAccess 
-dotnet ef migrations add InitialMigration -s ..\CalendarEvents.API
-dotnet ef database update -s ..\CalendarEvents.API
-
-MSSQL_PID=Express

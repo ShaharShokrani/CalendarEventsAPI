@@ -52,7 +52,7 @@ namespace CalendarEvents.Services.Tests
             Assert.IsNotNull(result);
             Assert.IsFalse(result.Success);
             Assert.IsNull(result.Value);
-            Assert.IsTrue(result.ErrorCode == ErrorCode.EntityNotValid);
+            Assert.IsTrue(result.ErrorCode == ErrorCode.ValidationError);
         }
         [Test] public void GetOrderBy_WhenOrderByStatementNotValid_ShouldReturnFail()
         {
@@ -67,7 +67,7 @@ namespace CalendarEvents.Services.Tests
             Assert.IsNotNull(result);
             Assert.IsFalse(result.Success);
             Assert.IsNull(result.Value);
-            Assert.IsTrue(result.ErrorCode == ErrorCode.EntityNotValid);
+            Assert.IsTrue(result.ErrorCode == ErrorCode.ValidationError);
         }
 
         [TearDown] public void CleanUp()

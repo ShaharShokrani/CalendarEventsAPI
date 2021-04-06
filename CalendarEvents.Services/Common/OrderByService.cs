@@ -27,7 +27,7 @@ namespace CalendarEvents.Services
                 if (orderByStatement == null ||
                     !orderByStatement.IsValid)
                 {
-                    return ResultHandler.Fail<Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>>(ErrorCode.EntityNotValid);
+                    return ResultHandler.Fail<Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>>(ErrorCode.ValidationError);
                 }
 
                 //1. Detemine method name.

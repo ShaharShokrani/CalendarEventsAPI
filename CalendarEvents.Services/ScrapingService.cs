@@ -19,9 +19,9 @@ namespace CalendarEvents.Services
         private readonly IServiceScopeFactory serviceScopeFactory;
 
         public event EventHandler EventsUpdated;
-        private HabimaScrapper habimaScrapper;
-        private Thread _thread;
-        CancellationTokenSource _cancellationToken;
+        private readonly HabimaScrapper habimaScrapper;
+        private readonly Thread _thread;
+        readonly CancellationTokenSource _cancellationToken;
 
         //TODO: get interval from configuration
         private int _miliSecondsBetweenIterations = 60 * 60 * 1000; 

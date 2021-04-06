@@ -174,7 +174,7 @@ namespace CalendarEvents.Services.Tests
             Assert.IsNotNull(actual);
             Assert.IsFalse(actual.Success);
             Assert.IsNull(actual.Value);
-            Assert.IsTrue(actual.ErrorCode == ErrorCode.NotFound);
+            Assert.IsTrue(actual.ErrorCode == ErrorCode.EntityNotFound);
         }
         [Test] public void Get_WhenRepositoryThrowException_ShouldReturnError()
         {
@@ -204,7 +204,7 @@ namespace CalendarEvents.Services.Tests
                 Assert.IsTrue(this._eventModels.Any(eventModel => eventModel.Id == actualEventModel.Id));
             }
         }
-        #endregion
+        #endregion        
 
         #region GetById
         [Test] public async Task GetById_WhenCalled_ShouldReturnItem()
@@ -212,7 +212,7 @@ namespace CalendarEvents.Services.Tests
             //Arrange
             this._repositoryMock
                 .Setup(items => items.GetById(this._eventModel.Id))
-                .Returns(() => Task.FromResult(this._eventModel));
+                .ReturnsAsync(this._eventModel);                
 
             //Act
             var actual = await this._eventService.GetById(this._eventModel.Id);
@@ -228,6 +228,7 @@ namespace CalendarEvents.Services.Tests
             Assert.IsNotNull(eventModel);
             Assert.AreEqual(this._eventModel.GetHashCode(), eventModel.GetHashCode());
         }
+
         [Test] public async Task GetById_WhenRepositoryReturnsNull_ShouldReturnNotFound()
         {
             //Arrange
@@ -235,7 +236,7 @@ namespace CalendarEvents.Services.Tests
 
             this._repositoryMock
                 .Setup(items => items.GetById(id))
-                .Returns(() => Task.FromResult<EventModel>(null));
+                .ReturnsAsync((EventModel)null);
 
             //Act
             var actual = await this._eventService.GetById(id);
@@ -244,7 +245,7 @@ namespace CalendarEvents.Services.Tests
             Assert.IsNotNull(actual);
             Assert.IsFalse(actual.Success);
             Assert.IsNull(actual.Value);
-            Assert.IsTrue(actual.ErrorCode == ErrorCode.NotFound);
+            Assert.IsTrue(actual.ErrorCode == ErrorCode.EntityNotFound);
         }
         [Test] public async Task GetById_WhenRepositoryThrowException_ShouldReturnError()
         {
@@ -268,7 +269,7 @@ namespace CalendarEvents.Services.Tests
             //Arrange
             this._repositoryMock
                 .Setup(items => items.GetById(this._eventModel.Id))
-                .Returns(() => Task.FromResult(this._eventModel));
+                .ReturnsAsync(this._eventModel);
 
             this._repositoryMock
                 .Setup(items => items.Remove(this._eventModel))
@@ -289,7 +290,7 @@ namespace CalendarEvents.Services.Tests
 
             this._repositoryMock
                 .Setup(items => items.GetById(id))
-                .Returns(() => Task.FromResult<EventModel>(null));
+                .ReturnsAsync((EventModel)null);
 
             //Act
             var actual = await this._eventService.Delete(id);
@@ -297,7 +298,7 @@ namespace CalendarEvents.Services.Tests
             //Assert
             Assert.IsNotNull(actual);
             Assert.IsFalse(actual.Success);
-            Assert.IsTrue(actual.ErrorCode == ErrorCode.NotFound);
+            Assert.IsTrue(actual.ErrorCode == ErrorCode.EntityNotFound);
         }
         [Test] public async Task Delete_WhenRepositoryThrowException_ShouldReturnError()
         {
@@ -324,7 +325,7 @@ namespace CalendarEvents.Services.Tests
             //Arrange
             this._repositoryMock
                 .Setup(items => items.GetById(this._eventModel.Id))
-                .Returns(Task.FromResult(this._eventModel));
+                .ReturnsAsync(this._eventModel);
 
             //Act
             var actual = await this._eventService.Update(this._eventModel);
@@ -339,7 +340,7 @@ namespace CalendarEvents.Services.Tests
             //Arrange
             this._repositoryMock
                 .Setup(items => items.GetById(this._eventModel.Id))
-                .Returns(Task.FromResult(this._eventModel));
+                .ReturnsAsync(this._eventModel);
             this._repositoryMock
                 .Setup(items => items.Update(It.IsAny<EventModel>()))
                 .Throws(this._exception);
@@ -360,7 +361,7 @@ namespace CalendarEvents.Services.Tests
             //Arrange
             this._repositoryMock
                 .Setup(items => items.IsOwner(this._eventModel.Id, this._eventModel.OwnerId))
-                .Returns(Task.FromResult(true));
+                .ReturnsAsync(true);
 
             //Act
             var actual = await this._eventService.IsOwner(this._eventModel.Id, this._eventModel.OwnerId);
@@ -375,7 +376,7 @@ namespace CalendarEvents.Services.Tests
             //Arrange
             this._repositoryMock
                 .Setup(items => items.IsOwner(this._eventModel.Id, this._eventModel.OwnerId))
-                .Returns(Task.FromResult(false));
+                .ReturnsAsync(false);
 
             //Act
             var actual = await this._eventService.IsOwner(this._eventModel.Id, this._eventModel.OwnerId);

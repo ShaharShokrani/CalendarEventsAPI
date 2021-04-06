@@ -120,25 +120,27 @@ namespace CalendarEvents
                     });
             });
 
-            string migrationsAssembly = typeof(CalendarEvents.DataAccess.ApplicationDbContext)
-                .GetTypeInfo().Assembly.GetName().Name;
+
 
             string connectionString = null;
-            try
-            {
-                string server = Environment.GetEnvironmentVariable("DatabaseServer") ?? "localhost";
-                string database = Environment.GetEnvironmentVariable("DatabaseName") ?? "CalendarEventsAPIDb";
-                string port = Environment.GetEnvironmentVariable("DatabasePort") ?? "1443";
-                string user = Environment.GetEnvironmentVariable("DatabaseUser") ?? "sa";
-                string password = Environment.GetEnvironmentVariable("DatabasePassword") ?? "<YourStrong@Passw0rd>";
-                connectionString = $"Server={server},{port};Database={database};User ID={user};Password={password};";
-            }
-            catch
-            {
-                connectionString = Configuration.GetConnectionString("DefaultConnection");
-            }
+            //try
+            //{
+            //    string server = Environment.GetEnvironmentVariable("DatabaseServer") ?? "localhost";
+            //    string database = Environment.GetEnvironmentVariable("DatabaseName") ?? "CalendarEventsAPIDb";
+            //    string port = Environment.GetEnvironmentVariable("DatabasePort") ?? "1443";
+            //    string user = Environment.GetEnvironmentVariable("DatabaseUser") ?? "sa";
+            //    string password = Environment.GetEnvironmentVariable("DatabasePassword") ?? "<YourStrong@Passw0rd>";
+            //    connectionString = $"Server={server},{port};Database={database};User ID={user};Password={password};";
+            //}
+            //catch
+            //{
+            //    connectionString = Configuration.GetConnectionString("DefaultConnection");
+            //}
 
+            connectionString = Configuration.GetConnectionString("DefaultConnection");
 
+            string migrationsAssembly = typeof(ApplicationDbContext)
+                .GetTypeInfo().Assembly.GetName().Name;
             services.AddDbContext<ApplicationDbContext>(options =>
             {
                 options.UseSqlServer(
@@ -147,6 +149,15 @@ namespace CalendarEvents
                 );
             });
 
+            string migrationsMirrorAssembly = typeof(CalendarEvents.DataAccess.Mirror.ApplicationDbContext)
+                .GetTypeInfo().Assembly.GetName().Name;
+            services.AddDbContext<CalendarEvents.DataAccess.Mirror.ApplicationDbContext>(options =>
+            {
+                options.UseSqlServer(
+                    connectionString,
+                    b => b.MigrationsAssembly(migrationsMirrorAssembly)
+                );
+            });
 
 
             //TODO: register all the generic service and repository with generic syntax like autofac does <>.

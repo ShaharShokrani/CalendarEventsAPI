@@ -93,7 +93,7 @@ namespace CalendarEvents.Controllers
             catch (Exception ex)
             {
                 this._log.LogError(ex, "EventsController.Get");
-                return StatusCode(500, ErrorCode.Unknown);
+                return StatusCode(500, ErrorCode.Exception);
             }
         }
 
@@ -116,7 +116,7 @@ namespace CalendarEvents.Controllers
 
                     return Ok(eventModelDTO);
                 }
-                else if (result.ErrorCode == ErrorCode.NotFound)
+                else if (result.ErrorCode == ErrorCode.EntityNotFound)
                     return NotFound($"Not found entity with Id: {id}");
                 else
                     return StatusCode(500, result.ErrorCode);
@@ -124,7 +124,7 @@ namespace CalendarEvents.Controllers
             catch (Exception ex)
             {
                 this._log.LogError(ex, "EventsController.Get");
-                return StatusCode(500, ErrorCode.Unknown);                
+                return StatusCode(500, ErrorCode.Exception);                
             }
         }
 
@@ -161,7 +161,7 @@ namespace CalendarEvents.Controllers
             catch (Exception ex)
             {
                 this._log.LogError(ex, "EventsController.Post");
-                return StatusCode(500, ErrorCode.Unknown);
+                return StatusCode(500, ErrorCode.Exception);
             }
         }
         
@@ -213,7 +213,7 @@ namespace CalendarEvents.Controllers
             catch (Exception ex)
             {
                 this._log.LogError(ex, "EventsController.Put");
-                return StatusCode(500, ErrorCode.Unknown);                
+                return StatusCode(500, ErrorCode.Exception);                
             }
         }
         
@@ -242,7 +242,7 @@ namespace CalendarEvents.Controllers
             catch (Exception ex)
             {
                 this._log.LogError(ex, "EventsController.Delete");
-                return StatusCode(500, ErrorCode.Unknown);                
+                return StatusCode(500, ErrorCode.Exception);                
             }
         }
     }

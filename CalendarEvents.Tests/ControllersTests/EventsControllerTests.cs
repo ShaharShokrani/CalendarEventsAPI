@@ -113,7 +113,7 @@ namespace CalendarEvents.Tests
         public async Task Get_WhenServiceHasError_ShouldReturnStatusCode500()
         {
             //Arrange
-            var expected = ResultHandler.Fail<IAsyncEnumerable<EventModel>>(ErrorCode.Unknown);
+            var expected = ResultHandler.Fail<IAsyncEnumerable<EventModel>>(ErrorCode.Exception);
 
             this._genericServiceMock
                 .Setup(items => items.Get(It.IsAny<IEnumerable<FilterStatement<EventModel>>>(),
@@ -131,7 +131,7 @@ namespace CalendarEvents.Tests
         public async Task Get_WhenServiceThrowException_ShouldReturnStatusCode500()
         {
             //Arrange
-            ResultHandler<IEnumerable<EventModel>> expected = ResultHandler.Fail<IEnumerable<EventModel>>(ErrorCode.Unknown);
+            ResultHandler<IEnumerable<EventModel>> expected = ResultHandler.Fail<IEnumerable<EventModel>>(ErrorCode.Exception);
 
             this._genericServiceMock
                 .Setup(items => items.Get(It.IsAny<IEnumerable<FilterStatement<EventModel>>>(),
@@ -165,7 +165,7 @@ namespace CalendarEvents.Tests
             ResultHandler<EventModel> expected = ResultHandler.Ok(this._eventModels.First());
             this._genericServiceMock
                 .Setup(items => items.GetById(expected.Value.Id))
-                .Returns(() => Task.FromResult(expected));
+                .ReturnsAsync(expected);
 
             //Act
             IActionResult actual = await this._controller.GetById(expected.Value.Id);
@@ -177,11 +177,11 @@ namespace CalendarEvents.Tests
         public async Task GetById_WhenServiceHasError_ShouldReturnStatusCode500()
         {
             //Arrange
-            ResultHandler<EventModel> expected = ResultHandler.Fail<EventModel>(ErrorCode.Unknown);
+            ResultHandler<EventModel> expected = ResultHandler.Fail<EventModel>(ErrorCode.Exception);
 
             this._genericServiceMock
                 .Setup(items => items.GetById(It.IsAny<Guid>()))
-                .Returns(() => Task.FromResult(expected));
+                .ReturnsAsync(expected);
            
             //Act
             IActionResult actual = await this._controller.GetById(Guid.NewGuid());
@@ -193,11 +193,11 @@ namespace CalendarEvents.Tests
         public async Task GetById_WhenEntityNotFound_ShouldReturnStatusCode404()
         {
             //Arrange
-            ResultHandler<EventModel> expected = ResultHandler.Fail<EventModel>(ErrorCode.NotFound);
+            ResultHandler<EventModel> expected = ResultHandler.Fail<EventModel>(ErrorCode.EntityNotFound);
 
             this._genericServiceMock
                 .Setup(items => items.GetById(It.IsAny<Guid>()))
-                .Returns(() => Task.FromResult(expected));
+                .ReturnsAsync(expected);
 
             //Act
             Guid id = Guid.NewGuid();
@@ -210,7 +210,7 @@ namespace CalendarEvents.Tests
         public async Task GetById_WhenServiceThrowException_ShouldReturnStatusCode500()
         {
             //Arrange
-            ResultHandler<IEnumerable<EventModel>> expected = ResultHandler.Fail<IEnumerable<EventModel>>(ErrorCode.Unknown);
+            ResultHandler<IEnumerable<EventModel>> expected = ResultHandler.Fail<IEnumerable<EventModel>>(ErrorCode.Exception);
 
             this._genericServiceMock
                 .Setup(items => items.GetById(It.IsAny<Guid>()))
@@ -245,7 +245,7 @@ namespace CalendarEvents.Tests
 
             this._genericServiceMock
                 .Setup(items => items.InsertRange(It.IsAny<IEnumerable<EventModel>>()))
-                .Returns(() => Task.FromResult(expected));
+                .ReturnsAsync(expected);
 
             //Act
             IActionResult actual = await this._controller.Insert(this._eventModelPostsDTOs);
@@ -257,11 +257,11 @@ namespace CalendarEvents.Tests
         public async Task Post_WhenServiceHasError_ShouldReturnStatusCode500()
         {
             //Arrange
-            ResultHandler expected = ResultHandler.Fail(ErrorCode.Unknown);
+            ResultHandler expected = ResultHandler.Fail(ErrorCode.Exception);
 
             this._genericServiceMock
                 .Setup(items => items.InsertRange(this._eventModels))
-                .Returns(() => Task.FromResult(expected));
+                .ReturnsAsync(expected);
 
             //Act
             IActionResult actual = await this._controller.Insert(this._eventModelPostsDTOs);
@@ -273,7 +273,7 @@ namespace CalendarEvents.Tests
         public async Task Post_WhenServiceThrowException_ShouldReturnStatusCode500()
         {
             //Arrange
-            ResultHandler expected = ResultHandler.Fail(ErrorCode.Unknown);
+            ResultHandler expected = ResultHandler.Fail(ErrorCode.Exception);
 
             this._genericServiceMock
                 .Setup(items => items.InsertRange(It.IsAny<IEnumerable<EventModel>>()))
@@ -307,11 +307,11 @@ namespace CalendarEvents.Tests
             ResultHandler<EventModel> expected = ResultHandler.Ok(this._eventModels.First());            
             this._genericServiceMock
                 .Setup(x => x.GetById(It.IsAny<Guid>()))
-                .Returns(() => Task.FromResult(expected));
+                .ReturnsAsync(expected);
 
             this._genericServiceMock
                 .Setup(x => x.Update(It.IsAny<EventModel>()))
-                .Returns(() => Task.FromResult(ResultHandler.Ok()));
+                .ReturnsAsync(ResultHandler.Ok());
 
             this._userServiceMock
                 .Setup(x => x.OwnerId)
@@ -330,11 +330,11 @@ namespace CalendarEvents.Tests
             ResultHandler<EventModel> expected = ResultHandler.Ok(this._eventModels.First());
             this._genericServiceMock
                 .Setup(x => x.GetById(It.IsAny<Guid>()))
-                .Returns(() => Task.FromResult(expected));
+                .ReturnsAsync(expected);
 
             this._genericServiceMock
                 .Setup(x => x.Update(It.IsAny<EventModel>()))
-                .Returns(() => Task.FromResult(ResultHandler.Ok()));
+                .ReturnsAsync(ResultHandler.Ok());
 
             this._userServiceMock
                 .Setup(x => x.OwnerId)
@@ -351,11 +351,11 @@ namespace CalendarEvents.Tests
         public async Task Put_WhenServiceHasError_ShouldReturnStatusCode500()
         {
             //Arrange
-            ResultHandler expected = ResultHandler.Fail(ErrorCode.Unknown);
+            ResultHandler expected = ResultHandler.Fail(ErrorCode.Exception);
 
             this._genericServiceMock
                 .Setup(items => items.Update(It.IsAny<EventModel>()))
-                .Returns(() => Task.FromResult(expected));
+                .ReturnsAsync(expected);
 
             //Act
             IActionResult actual = await this._controller.Update(new EventPutRequest());
@@ -367,7 +367,7 @@ namespace CalendarEvents.Tests
         public async Task Put_WhenServiceThrowException_ShouldReturnStatusCode500()
         {
             //Arrange
-            ResultHandler<IEnumerable<EventModel>> expected = ResultHandler.Fail<IEnumerable<EventModel>>(ErrorCode.Unknown);
+            ResultHandler<IEnumerable<EventModel>> expected = ResultHandler.Fail<IEnumerable<EventModel>>(ErrorCode.Exception);
 
             this._genericServiceMock
                 .Setup(items => items.Update(It.IsAny<EventModel>()))
@@ -402,7 +402,7 @@ namespace CalendarEvents.Tests
 
             this._genericServiceMock
                 .Setup(items => items.Delete(this._eventModels.First().Id))
-                .Returns(() => Task.FromResult(expected));
+                .ReturnsAsync(expected);
 
             //Act
             IActionResult actual = await this._controller.Delete(this._eventModels.First().Id);
@@ -414,11 +414,11 @@ namespace CalendarEvents.Tests
         public async Task Delete_WhenServiceHasError_ShouldReturnStatusCode500()
         {
             //Arrange
-            ResultHandler expected = ResultHandler.Fail(ErrorCode.Unknown);
+            ResultHandler expected = ResultHandler.Fail(ErrorCode.Exception);
 
             this._genericServiceMock
                 .Setup(items => items.Delete(It.IsAny<Guid>()))
-                .Returns(() => Task.FromResult(expected));
+                .ReturnsAsync(expected);
 
             //Act
             IActionResult actual = await this._controller.Delete(Guid.NewGuid());
@@ -430,7 +430,7 @@ namespace CalendarEvents.Tests
         public async Task Delete_WhenServiceThrowException_ShouldReturnStatusCode500()
         {
             //Arrange
-            ResultHandler<IEnumerable<EventModel>> expected = ResultHandler.Fail<IEnumerable<EventModel>>(ErrorCode.Unknown);
+            ResultHandler<IEnumerable<EventModel>> expected = ResultHandler.Fail<IEnumerable<EventModel>>(ErrorCode.Exception);
 
             this._genericServiceMock
                 .Setup(items => items.Delete(It.IsAny<Guid>()))

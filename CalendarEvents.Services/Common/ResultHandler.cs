@@ -31,7 +31,7 @@ namespace CalendarEvents.Services
 
             Success = false;
             Exception = error;
-            ErrorCode = ErrorCode.Unknown;
+            ErrorCode = ErrorCode.Exception;
         }
 
         public static ResultHandler Fail(ErrorCode errorCode)
@@ -72,10 +72,10 @@ namespace CalendarEvents.Services
         public static ResultHandler<T> Ok<T>(T value)
         {
             if (value == null)
-                return new ResultHandler<T>(value, false, ErrorCode.NotFound, "Value is Null");
+                return new ResultHandler<T>(value, false, ErrorCode.EntityNotFound, "Value is Null");
             else
                 return new ResultHandler<T>(value, true, ErrorCode.Undefined, null);
-        }        
+        }
     }
 
 

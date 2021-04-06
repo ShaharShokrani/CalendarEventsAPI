@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CalendarEvents.Models
 {
@@ -18,6 +19,7 @@ namespace CalendarEvents.Models
         public DateTime CreateDate { get; set; }
         public DateTime UpdateDate { get; set; }
         public string OwnerId { get; set; }
+        [Column(TypeName = "decimal(18,2)")]
         public decimal Price { get; set; }
         public string Address { get; set; }
         public string Currency { get; set; }
@@ -43,8 +45,7 @@ namespace CalendarEvents.Models
         public string Address { get; set; }
         public override bool Equals(object obj)
         {
-            var other = obj as EventModelDTO;
-            if (other == null)
+            if (!(obj is EventModelDTO other))
             {
                 return false;
             }

@@ -30,22 +30,22 @@ namespace CalendarEvents.Services
             this._log = log ?? throw new ArgumentNullException(nameof(log));
         }
 
-        public bool CheckIsApproval(int id)
-        {
-            try
-            {
-                var order = this._dataAccess.GetOrder(id);
-                // Compute if the order is approved 
-                bool response = CheckIfApproved(order);
+        //public bool CheckIsApproval(int id)
+        //{
+        //    try
+        //    {
+        //        var order = this._dataAccess.GetOrder(id);
+        //        // Compute if the order is approved 
+        //        bool response = CheckIfApproved(order);
 
-                return response;
-            }
-            catch (Exception ex)
-            {
-                _log.LogError(ex, "CheckIsApproval Failed");
-                return false;
-            }
-        }
+        //        return response;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _log.LogError(ex, "CheckIsApproval Failed");
+        //        return false;
+        //    }
+        //}
         public async Task<ResultHandler> InsertRange(IEnumerable<EventModel> items)
         {
             try
@@ -104,7 +104,7 @@ namespace CalendarEvents.Services
             {
                 var entity = await this._repository.GetById(id);
                 if (entity == null)
-                    return ResultHandler.Fail<EventModel>(ErrorCode.NotFound);
+                    return ResultHandler.Fail<EventModel>(ErrorCode.EntityNotFound);
 
                 return ResultHandler.Ok<EventModel>(entity);
             }
@@ -122,7 +122,7 @@ namespace CalendarEvents.Services
                 var entity = await this._repository.GetById(id);
                 if (entity == null)
                 {
-                    return ResultHandler.Fail(ErrorCode.NotFound, "Entity not found");
+                    return ResultHandler.Fail(ErrorCode.EntityNotFound, "Entity not found");
                 }
                 await this._repository.Remove(entity);
 
@@ -164,6 +164,11 @@ namespace CalendarEvents.Services
                 _log.LogError(ex, "Failed to get object with id: {0} from DB", id);
                 return ResultHandler.Fail<bool>(ex);
             }
+        }
+
+        public Task<ResultHandler> Insert(EventModel obj)
+        {
+            throw new NotImplementedException();
         }
     }
 }
