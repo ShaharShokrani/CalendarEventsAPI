@@ -18,10 +18,11 @@ namespace CalendarEvents.Services.Tests
         private IEnumerable<EventModel> _eventModels;
         private IAsyncEnumerable<EventModel> _asyncEnumerable;
         private EventModel _eventModel;
-        private GenericService<EventModel> _genericService;
+        private EventService _eventService;
         private Exception _exception;
         private Mock<IGenericRepository<EventModel>> _repositoryMock;
-        private Mock<ILogger<GenericService<EventModel>>> _loggerMock;
+        private Mock<IFiltersService<EventModel>> _filtersServiceMock;
+        private Mock<ILogger<EventModel>> _loggerMock;
 
         //private async Task Main()
         //{
@@ -40,12 +41,13 @@ namespace CalendarEvents.Services.Tests
             this._exception = new Exception(Guid.NewGuid().ToString());
 
             this._repositoryMock = this._mock.Mock<IGenericRepository<EventModel>>();
-            this._loggerMock = this._mock.Mock<ILogger<GenericService<EventModel>>>();
+            this._filtersServiceMock = this._mock.Mock<IFiltersService<EventModel>>();
+            this._loggerMock = this._mock.Mock<ILogger<EventModel>>();
             this._loggerMock.MockLog(LogLevel.Error);
             this._loggerMock.MockLog(LogLevel.Information);
             this._loggerMock.MockLog(LogLevel.Warning);
-            this._genericService = new GenericService<EventModel>(this._repositoryMock.Object, this._loggerMock.Object);
-            this._genericService = _mock.Create<GenericService<EventModel>>();
+            this._eventService = new EventService(this._filtersServiceMock.Object, this._repositoryMock.Object, this._loggerMock.Object);
+            this._eventService = _mock.Create<EventService>();
         }
 
         #region Insert
@@ -57,7 +59,7 @@ namespace CalendarEvents.Services.Tests
                 .Returns(Task.CompletedTask);
 
             //Act
-            ResultHandler result = await this._genericService.InsertRange(this._eventModels);
+            ResultHandler result = await this._eventService.InsertRange(this._eventModels);
 
             //Assert
             Assert.IsNotNull(result);
@@ -72,7 +74,7 @@ namespace CalendarEvents.Services.Tests
                 .Throws(this._exception);
 
             //Act
-            var actual = await this._genericService.InsertRange(this._eventModels);
+            var actual = await this._eventService.InsertRange(this._eventModels);
 
             //Assert  
             AssertException(actual);
@@ -138,7 +140,7 @@ namespace CalendarEvents.Services.Tests
                 .Returns(() => this._asyncEnumerable);
 
             //Act
-            var actual = this._genericService.Get(null, orderByStatement, "");
+            var actual = this._eventService.Get(null, orderByStatement, "");
 
             //Assert
             await AssertSuccessGet(actual);
@@ -153,7 +155,7 @@ namespace CalendarEvents.Services.Tests
                 .Returns(() => this._asyncEnumerable);
 
             //Act
-            var actual = this._genericService.Get(null, null, include);
+            var actual = this._eventService.Get(null, null, include);
 
             //Assert
             await AssertSuccessGet(actual);
@@ -166,7 +168,7 @@ namespace CalendarEvents.Services.Tests
                 .Returns(() => null);
 
             //Act
-            var actual = this._genericService.Get(null, null, "");
+            var actual = this._eventService.Get(null, null, "");
 
             //Assert
             Assert.IsNotNull(actual);
@@ -182,7 +184,7 @@ namespace CalendarEvents.Services.Tests
                 .Throws(this._exception);
 
             //Act
-            var actual = this._genericService.Get(null, null, "");
+            var actual = this._eventService.Get(null, null, "");
 
             //Assert
             AssertResultHandlerException(actual);
@@ -213,7 +215,7 @@ namespace CalendarEvents.Services.Tests
                 .Returns(() => Task.FromResult(this._eventModel));
 
             //Act
-            var actual = await this._genericService.GetById(this._eventModel.Id);
+            var actual = await this._eventService.GetById(this._eventModel.Id);
 
             //Assert
             Assert.IsNotNull(actual );
@@ -236,7 +238,7 @@ namespace CalendarEvents.Services.Tests
                 .Returns(() => Task.FromResult<EventModel>(null));
 
             //Act
-            var actual = await this._genericService.GetById(id);
+            var actual = await this._eventService.GetById(id);
 
             //Assert
             Assert.IsNotNull(actual);
@@ -253,7 +255,7 @@ namespace CalendarEvents.Services.Tests
                 .Throws(this._exception);
 
             //Act
-            var actual = await this._genericService.GetById(id);
+            var actual = await this._eventService.GetById(id);
 
             //Assert
             AssertResultHandlerException<EventModel>(actual);
@@ -273,7 +275,7 @@ namespace CalendarEvents.Services.Tests
                 .Returns(Task.CompletedTask);
 
             //Act
-            var actual = await this._genericService.Delete(this._eventModel.Id);
+            var actual = await this._eventService.Delete(this._eventModel.Id);
 
             //Assert
             Assert.IsNotNull(actual);
@@ -290,7 +292,7 @@ namespace CalendarEvents.Services.Tests
                 .Returns(() => Task.FromResult<EventModel>(null));
 
             //Act
-            var actual = await this._genericService.Delete(id);
+            var actual = await this._eventService.Delete(id);
 
             //Assert
             Assert.IsNotNull(actual);
@@ -307,7 +309,7 @@ namespace CalendarEvents.Services.Tests
                 .Throws(this._exception);
 
             //Act
-            var actual = await this._genericService.Delete(id);
+            var actual = await this._eventService.Delete(id);
 
             //Assert
             Assert.IsNotNull(actual);
@@ -325,7 +327,7 @@ namespace CalendarEvents.Services.Tests
                 .Returns(Task.FromResult(this._eventModel));
 
             //Act
-            var actual = await this._genericService.Update(this._eventModel);
+            var actual = await this._eventService.Update(this._eventModel);
 
             //Assert
             Assert.IsNotNull(actual);
@@ -343,7 +345,7 @@ namespace CalendarEvents.Services.Tests
                 .Throws(this._exception);
 
             //Act
-            var actual = await this._genericService.Update(this._eventModel);
+            var actual = await this._eventService.Update(this._eventModel);
 
             //Assert
             Assert.IsNotNull(actual);
@@ -361,7 +363,7 @@ namespace CalendarEvents.Services.Tests
                 .Returns(Task.FromResult(true));
 
             //Act
-            var actual = await this._genericService.IsOwner(this._eventModel.Id, this._eventModel.OwnerId);
+            var actual = await this._eventService.IsOwner(this._eventModel.Id, this._eventModel.OwnerId);
 
             //Assert
             Assert.IsNotNull(actual);
@@ -376,7 +378,7 @@ namespace CalendarEvents.Services.Tests
                 .Returns(Task.FromResult(false));
 
             //Act
-            var actual = await this._genericService.IsOwner(this._eventModel.Id, this._eventModel.OwnerId);
+            var actual = await this._eventService.IsOwner(this._eventModel.Id, this._eventModel.OwnerId);
 
             //Assert
             Assert.IsNotNull(actual);
@@ -391,7 +393,7 @@ namespace CalendarEvents.Services.Tests
                 .Throws(this._exception);
 
             //Act
-            var actual = await this._genericService.IsOwner(new Guid(), null);
+            var actual = await this._eventService.IsOwner(new Guid(), null);
 
             //Assert
             Assert.IsNotNull(actual);

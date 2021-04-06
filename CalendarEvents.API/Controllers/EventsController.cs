@@ -31,17 +31,50 @@ namespace CalendarEvents.Controllers
             this._log = log ?? throw new ArgumentNullException(nameof(log));
         }
 
+        //[AllowAnonymous]
+        //[HttpPost]
+        //public async Task<IActionResult> Search([FromBody]SearchRequest<EventModelDTO> genericRequestDTO = null)
+        //{
+        //    try
+        //    {
+        //        if (genericRequestDTO == null)
+        //            genericRequestDTO = new SearchRequest<EventModelDTO>();
+
+        //        SearchRequest<EventModel> genericRequest = this._mapper.Map<SearchRequest<EventModel>>(genericRequestDTO);
+        //        ResultHandler<IAsyncEnumerable<EventModel>> getResultHandler = this._eventsService.Get(genericRequest.Filters, genericRequest.OrderBy, genericRequest.IncludeProperties);
+        //        if (getResultHandler.Success)
+        //        {
+        //            List<EventModelDTO> result = new List<EventModelDTO>();
+        //            await foreach (EventModel eventModel in getResultHandler.Value)
+        //            {
+        //                EventModelDTO eventModelDTO = this._mapper.Map<EventModelDTO>(eventModel);
+        //                result.Add(eventModelDTO);
+        //            }
+        //            return Ok(result);
+        //        }
+        //        else
+        //        {
+        //            return StatusCode(500, getResultHandler.ErrorCode);
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        this._log.LogError(ex, "EventsController.Get");
+        //        return StatusCode(500, ErrorCode.Unknown);                
+        //    }
+        //}
+
         [AllowAnonymous]
         [HttpPost]
-        public async Task<IActionResult> Search([FromBody]GetRequest<EventModelDTO> genericRequestDTO = null)
+        public async Task<IActionResult> Search([FromBody]SearchRequest<EventModelDTO> genericRequestDTO = null)
         {
             try
             {
                 if (genericRequestDTO == null)
-                    genericRequestDTO = new GetRequest<EventModelDTO>();
+                    genericRequestDTO = new SearchRequest<EventModelDTO>();
 
-                GetRequest<EventModel> genericRequest = this._mapper.Map<GetRequest<EventModel>>(genericRequestDTO);
-                var getResultHandler = this._eventsService.Get(genericRequest.Filters, genericRequest.OrderBy, genericRequest.IncludeProperties);
+                SearchRequest<EventModel> genericRequest = this._mapper.Map<SearchRequest<EventModel>>(genericRequestDTO);
+                ResultHandler<IAsyncEnumerable<EventModel>> getResultHandler = this._eventsService.Get(genericRequest.Filters, genericRequest.OrderBy, genericRequest.IncludeProperties);
                 if (getResultHandler.Success)
                 {
                     List<EventModelDTO> result = new List<EventModelDTO>();
@@ -60,7 +93,7 @@ namespace CalendarEvents.Controllers
             catch (Exception ex)
             {
                 this._log.LogError(ex, "EventsController.Get");
-                return StatusCode(500, ErrorCode.Unknown);                
+                return StatusCode(500, ErrorCode.Unknown);
             }
         }
 

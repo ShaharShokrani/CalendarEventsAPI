@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace CalendarEvents.Models
 {
@@ -16,14 +12,18 @@ namespace CalendarEvents.Models
         public string Details { get; set; }
         public string URL { get; set; }
         public string ImagePath {get;set;}
-        public Guid Id { get; set; }
+        public Guid Id { get; set; }        
+        public int Audience { get; set; }
         public string Base64Id { get; set; }
         public DateTime CreateDate { get; set; }
         public DateTime UpdateDate { get; set; }
         public string OwnerId { get; set; }
+        public decimal Price { get; set; }
+        public string Address { get; set; }
+        public string Currency { get; set; }
     }
 
-    public class EventModelDTO
+    public class EventModelDTO 
     {
         public DateTime Start { get; set; }
         public DateTime End { get; set; }
@@ -34,10 +34,13 @@ namespace CalendarEvents.Models
         public string URL { get; set; }
         public string ImagePath { get; set; }
         public Guid Id { get; set; }
+        public AudienceType Audience { get; set; }
         public string Base64Id { get; set; }
         public DateTime CreateDate { get; set; }
         public DateTime UpdateDate { get; set; }
         public string OwnerId { get; set; }
+        public string Currency { get; set; }
+        public string Address { get; set; }
         public override bool Equals(object obj)
         {
             var other = obj as EventModelDTO;
@@ -58,7 +61,8 @@ namespace CalendarEvents.Models
                 Start == other.Start &&
                 Title == other.Title &&
                 UpdateDate == other.UpdateDate &&
-                URL == other.URL;
+                URL == other.URL &&
+                Audience == other.Audience;
         }
         public override int GetHashCode()
         {
@@ -74,7 +78,8 @@ namespace CalendarEvents.Models
                 this.Start.GetHashCode() +
                 this.Title.GetHashCode() +
                 this.UpdateDate.GetHashCode() +
-                this.URL.GetHashCode();
+                this.URL.GetHashCode() +
+                this.Audience.GetHashCode();
         }
 
     }

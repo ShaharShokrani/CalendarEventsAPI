@@ -30,6 +30,7 @@ namespace CalendarEvents
                 }
             }
 
+
             host.Run();
         }
 

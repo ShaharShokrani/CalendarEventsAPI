@@ -73,7 +73,7 @@ namespace CalendarEvents.Controllers
 
             var claims = new[]
             {
-                new Claim(ClaimTypes.NameIdentifier, userFromRepo.Id.ToString()),
+                new Claim(ClaimTypes.NameIdentifier, userFromRepo.Id),
                 new Claim(ClaimTypes.Name, userFromRepo.Email)
             };
             

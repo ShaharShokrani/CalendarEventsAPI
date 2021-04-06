@@ -8,7 +8,7 @@ namespace CalendarEvents
         public MappingProfile()
         {
             // Add as many of these lines as you need to map your objects
-            CreateMap<EventModel, EventModelDTO>();
+            CreateMap<EventModel, EventModelDTO>();                
             CreateMap<EventModelDTO, EventModel>();
 
             CreateMap<EventModel, EventModelPostDTO>();
@@ -17,11 +17,11 @@ namespace CalendarEvents
             CreateMap<EventModel, EventPutRequest>();
             CreateMap<EventPutRequest, EventModel>();
             
-            CreateMap<GetRequest<EventModelDTO>, GetRequest<EventModel>>();
-            CreateMap<GetRequest<EventModel>, GetRequest<EventModelDTO>>();
-            CreateMap<GetRequest<EventModel>, GetRequest<EventModelDTO>>();
+            CreateMap<SearchRequest<EventModelDTO>, SearchRequest<EventModel>>();
+            CreateMap<SearchRequest<EventModel>, SearchRequest<EventModelDTO>>();
+            CreateMap<SearchRequest<EventModel>, SearchRequest<EventModelDTO>>();
 
-            CreateMap<FilterStatement<EventModel>, FilterStatement<EventModelDTO>>();
+            CreateMap<FilterStatement<EventModel>, FilterStatement<EventModelDTO>>();             
             CreateMap<FilterStatement<EventModelDTO>, FilterStatement<EventModel>>();
 
             CreateMap<UserModel, UserListDTO>();

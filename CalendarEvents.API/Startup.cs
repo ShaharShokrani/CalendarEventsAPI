@@ -59,7 +59,8 @@ namespace CalendarEvents
                                   {
                                         //TODO: Use the config instead.
                                         builder
-                                        .SetIsOriginAllowed(origin => origin == "http://localhost:4200")
+                                        //.SetIsOriginAllowed(origin => origin == "http://localhost:4200")
+                                        .AllowAnyOrigin()
                                         .AllowAnyHeader()
                                         .AllowAnyMethod();
                                   });
@@ -149,10 +150,25 @@ namespace CalendarEvents
 
 
             //TODO: register all the generic service and repository with generic syntax like autofac does <>.
-            services.AddScoped<IGenericService<EventModel>, GenericService<EventModel>>();
-            services.AddScoped<IGenericRepository<EventModel>, GenericRepository<EventModel>>();
+            services.AddScoped<IGenericService<EventModel>, EventService>();
+            services.AddScoped<IGenericRepository<EventModel>, EventRepository>();
             services.AddScoped<IAuthRepository, AuthRepository>();
             services.AddScoped<IUserService, UserService>();
+            //services.AddScoped<IFilter<EventModel>, MultiCheckboxFilter>();
+            services.AddScoped<MultiCheckboxFilter>();
+            services.AddScoped<IFiltersService<EventModel>, EventFiltersService>();
+            services.AddScoped<EventFilterResolver>(serviceProvider => key =>
+            {
+                switch (key)
+                {
+                    case FilterType.MultiCheckbox:
+                        return serviceProvider.GetService<MultiCheckboxFilter>();
+                    case FilterType.Undefined:
+                    default:
+                        throw new NotSupportedException($"EventFilterResolver, key: {key}");
+                }
+            });
+            services.AddSingleton<ILogger>(svc => svc.GetRequiredService<ILogger<EventModel>>());
             //services.AddScoped<IScrapingService, ScrapingService>(); //WIll be inside another project.
         }
 

@@ -112,7 +112,10 @@ namespace CalendarEvents.Tests
                     Title = eventModel.Title,
                     UpdateDate = eventModel.UpdateDate,
                     OwnerId = eventModel.OwnerId,
-                    URL = eventModel.URL                    
+                    URL = eventModel.URL,
+                    Address = eventModel.Address,
+                    Audience = (AudienceType)eventModel.Audience,
+                    Currency = eventModel.Currency
                 };
             }
             public static EventModelPostDTO BuildEventModelPostDTO(EventModel eventModel)
@@ -126,7 +129,8 @@ namespace CalendarEvents.Tests
                     URL = eventModel.URL,
                     Description = eventModel.Description,
                     Details = eventModel.Details,
-                    ImagePath = eventModel.ImagePath                    
+                    ImagePath = eventModel.ImagePath,
+                    Audience = eventModel.Audience
                 };
             }
         }
@@ -159,9 +163,9 @@ namespace CalendarEvents.Tests
 
                 return new FilterStatement<TEntity>()
                 {
-                    Operation = filterOperation,
+                    FilterType = FilterType.MultiCheckbox,                    
                     PropertyName = propertyName,
-                    Value = value.ToString()
+                    ValueJson = value.ToString()
                 };
             }
         }
@@ -180,9 +184,9 @@ namespace CalendarEvents.Tests
 
         public static class GenericRequestfacade
         {
-            public static GetRequest<TEntity> BuildGenericRequest<TEntity>()
+            public static SearchRequest<TEntity> BuildGenericRequest<TEntity>()
             {
-                return new GetRequest<TEntity>()
+                return new SearchRequest<TEntity>()
                 {
                     Filters = BuildFilterList<TEntity>(),
                     IncludeProperties = "Id,CreateDate"
@@ -201,9 +205,9 @@ namespace CalendarEvents.Tests
             {
                 return new FilterStatement<TEntity>()
                 {
-                    Operation = FilterOperation.Equal,
+                    FilterType = FilterType.MultiCheckbox,
                     PropertyName = "Id",
-                    Value = Guid.NewGuid().ToString()
+                    ValueJson = Guid.NewGuid().ToString()
                 };
             }
         }

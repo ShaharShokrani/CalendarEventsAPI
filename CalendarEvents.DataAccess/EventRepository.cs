@@ -18,15 +18,13 @@ namespace CalendarEvents.DataAccess
         Task<int> SaveChanges();
     }
 
-    public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEntity : class, IGenericEntity
+    public class EventRepository : IGenericRepository<EventModel>
     {
         private readonly ApplicationDbContext _context = null;
-        private readonly DbSet<TEntity> _dbSet;
 
-        public GenericRepository(ApplicationDbContext context)
+        public EventRepository(ApplicationDbContext context)
         {
             this._context = context ?? throw new ArgumentNullException(nameof(context));
-            _dbSet = this._context.Set<TEntity>();
         }
 
         public virtual async Task<int> SaveChanges()
@@ -34,52 +32,40 @@ namespace CalendarEvents.DataAccess
             return await _context.SaveChangesAsync();
         }
         //TODO: Add paging support
-        public virtual IAsyncEnumerable<TEntity> Get(Expression<Func<TEntity, bool>> filter = null, 
-            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null, 
+        public virtual IAsyncEnumerable<EventModel> Get(IEnumerable<Expression<Func<EventModel, bool>>> filters = null, 
+            Func<IQueryable<EventModel>, IOrderedQueryable<EventModel>> orderBy = null, 
             string includeProperties = "",
             int? pageIndex = null,
             int? pageSize = null)
         {
-            IQueryable<TEntity> query = this._dbSet;
+            IQueryable<EventModel> query = this._context.Events;
 
-            if (filter != null)
+            if (filters != null)
             {
-                query = query.Where(filter);
-            }
-
-            if (includeProperties != null)
-            {
-                var properties = includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-
-                foreach (var includeProperty in properties)
+                foreach (var filter in filters)
                 {
-                    query = query.Include(includeProperty);
-                }
-            }
-
-            if (orderBy != null)
-            {
-                return orderBy(query).AsAsyncEnumerable();
+                    query = query.Where(filter);
+                }                
             }
 
             return query.AsAsyncEnumerable();
         }
 
-        public virtual async Task<TEntity> GetById(Guid id)
+        public virtual async Task<EventModel> GetById(Guid id)
         {            
-            return await _dbSet.FirstOrDefaultAsync(item => item.Id == id);
+            return await this._context.Events.FirstOrDefaultAsync(item => item.Id == id);
         }
-        public virtual async Task Add(TEntity entity)
+        public virtual async Task Add(EventModel entity)
         {
-            await this._dbSet.AddAsync(entity);
+            await this._context.Events.AddAsync(entity);
             await this.SaveChanges();
         }
-        public virtual async Task InsertRange(IEnumerable<TEntity> entities)
+        public virtual async Task InsertRange(IEnumerable<EventModel> entities)
         {
-            await this._dbSet.AddRangeAsync(entities);
+            await this._context.Events.AddRangeAsync(entities);
             await this.SaveChanges();
         }
-        public virtual async Task Update(TEntity entity)
+        public virtual async Task Update(EventModel entity)
         {
             if (entity != null)
             {
@@ -87,18 +73,18 @@ namespace CalendarEvents.DataAccess
                 await this.SaveChanges();
             }
         }
-        public virtual async Task Remove(TEntity entity)
+        public virtual async Task Remove(EventModel entity)
         {
             if (_context.Entry(entity).State == EntityState.Detached)
             {
-                _dbSet.Attach(entity);
+                this._context.Events.Attach(entity);
             }
-            _dbSet.Remove(entity);
+            this._context.Events.Remove(entity);
             await this.SaveChanges();
         }
         public Task<bool> IsOwner(Guid id, string ownerId)
         {
-            return this._dbSet.AnyAsync(i => i.Id == id && i.OwnerId == ownerId);
+            return this._context.Events.AnyAsync(i => i.Id == id && i.OwnerId == ownerId);
         }
 
         #region IDisposable Support

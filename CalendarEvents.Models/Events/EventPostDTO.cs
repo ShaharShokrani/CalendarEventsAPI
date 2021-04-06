@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace CalendarEvents.Models
@@ -16,5 +18,6 @@ namespace CalendarEvents.Models
         public string Description { get; set; }
         public string Details { get; set; }
         public string ImagePath { get; set; }
+        public IEnumerable<int> Audience { get; set; }
     }
 }

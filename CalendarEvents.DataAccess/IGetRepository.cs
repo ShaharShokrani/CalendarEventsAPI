@@ -11,7 +11,7 @@ namespace CalendarEvents.DataAccess
     {
         //TODO: Implement IAsyncEnumarable
         IAsyncEnumerable<TEntity> Get(
-            Expression<Func<TEntity, bool>> filters = null,
+            IEnumerable<Expression<Func<TEntity, bool>>> filters = null,
             Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
             string includeProperties = "",
             int? pageIndex = null,

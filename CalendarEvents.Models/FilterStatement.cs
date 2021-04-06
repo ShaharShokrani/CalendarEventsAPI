@@ -8,8 +8,9 @@ namespace CalendarEvents.Models
     /// <summary>
     /// Defines how a property should be filtered.
     /// </summary>
-    public class FilterStatement<TEntity>
+    public class FilterStatement<TEntity>        
     {
+        public FilterType FilterType { get; set; }        
         /// <summary>
         /// Name of the property.
         /// </summary>
@@ -17,17 +18,16 @@ namespace CalendarEvents.Models
         /// <summary>
         /// Express the interaction between the property and the constant value 
         /// defined in this filter statement.
-        /// </summary>
-        public FilterOperation Operation { get; set; }
+        /// </summary>        
         /// <summary>
         /// Constant value that will interact with the property defined in this filter statement.
         /// </summary>        
-        public object Value { get; set; }
+        public string ValueJson { get; set; }
         public bool IsValid
         {
             get
             {
-                if (this.PropertyName == null || this.Value == null)
+                if (this.FilterType == FilterType.Undefined || this.ValueJson == null)
                 {
                     return false;
                 }
@@ -47,7 +47,7 @@ namespace CalendarEvents.Models
 
                 return true;
             }
-        }
+        }        
     }
 
     //public class MyContext : ITypeDescriptorContext

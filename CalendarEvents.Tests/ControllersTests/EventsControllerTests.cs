@@ -48,8 +48,8 @@ namespace CalendarEvents.Tests
             this._genericServiceMock = this._mock.Mock<IGenericService<EventModel>>();
 
             this._mock.Mock<IMapper>()
-                .Setup(map => map.Map<GetRequest<EventModel>>(It.IsAny<GetRequest<EventModelDTO>>()))
-                .Returns(() => new GetRequest<EventModel>());
+                .Setup(map => map.Map<SearchRequest<EventModel>>(It.IsAny<SearchRequest<EventModelDTO>>()))
+                .Returns(() => new SearchRequest<EventModel>());
             this._mock.Mock<IMapper>()
                 .Setup(map => map.Map<IEnumerable<EventModel>>(It.IsAny<IEnumerable<EventModelPostDTO>>()))
                 .Returns(() => this._eventModels);
@@ -78,7 +78,7 @@ namespace CalendarEvents.Tests
                 .Returns(() => expected);
 
             //Act
-            IActionResult actual = await this._controller.Search(new GetRequest<EventModelDTO>());
+            IActionResult actual = await this._controller.Search(new SearchRequest<EventModelDTO>());
 
             //Assert
             AssertHttpCode<OkObjectResult>(actual, 0);
@@ -122,7 +122,7 @@ namespace CalendarEvents.Tests
                 .Returns(() => expected);
 
             //Act
-            IActionResult actual = await this._controller.Search(new GetRequest<EventModelDTO>());
+            IActionResult actual = await this._controller.Search(new SearchRequest<EventModelDTO>());
 
             //Assert                       
             AssertHttpCode<ObjectResult>(actual, expected.ErrorCode.GetHashCode());            
@@ -140,7 +140,7 @@ namespace CalendarEvents.Tests
                 .Throws(new Exception());                
 
             //Act
-            IActionResult actual = await this._controller.Search(new GetRequest<EventModelDTO>());
+            IActionResult actual = await this._controller.Search(new SearchRequest<EventModelDTO>());
 
             //Assert       
             AssertHttpCode<ObjectResult>(actual, expected.ErrorCode.GetHashCode());
@@ -217,7 +217,7 @@ namespace CalendarEvents.Tests
                 .Throws(new Exception());            
 
             //Act
-            IActionResult actual = await this._controller.Search(new GetRequest<EventModelDTO>());
+            IActionResult actual = await this._controller.Search(new SearchRequest<EventModelDTO>());
 
             //Assert
             AssertHttpCode<ObjectResult>(actual, expected.ErrorCode.GetHashCode());            

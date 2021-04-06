@@ -9,30 +9,48 @@ using System.Threading.Tasks;
 
 namespace CalendarEvents.Services
 {
-    public interface IGenericService<T> : IGetService<T>, 
-                                        IUpdateService<T>,
-                                        IInsertService<T>,
-                                        IOwnerService<T>,
+    public interface IGenericService<T> : IGetService<EventModel>, 
+                                        IUpdateService<EventModel>,
+                                        IInsertService<EventModel>,
+                                        IOwnerService<EventModel>,
                                         IDeleteService
     {
     }
 
-    public class GenericService<T> : IGenericService<T> where T : class, IGenericEntity
+    public class EventService : IGenericService<EventModel>
     {
-        private readonly IGenericRepository<T> _repository;
-        private readonly ILogger<GenericService<T>> _log;
+        private readonly IFiltersService<EventModel> _filtersService;
+        private readonly IGenericRepository<EventModel> _repository;
+        private readonly ILogger<EventModel> _log;
 
-        public GenericService(IGenericRepository<T> repository, ILogger<GenericService<T>> log)
+        public EventService(IFiltersService<EventModel> filtersService, IGenericRepository<EventModel> repository, ILogger<EventModel> log)
         {
+            this._filtersService = filtersService?? throw new ArgumentNullException(nameof(filtersService));
             this._repository = repository ?? throw new ArgumentNullException(nameof(repository));
             this._log = log ?? throw new ArgumentNullException(nameof(log));
         }
 
-        public async Task<ResultHandler> Insert(T obj)
+        public bool CheckIsApproval(int id)
         {
             try
             {
-                await this._repository.Add(obj);
+                var order = this._dataAccess.GetOrder(id);
+                // Compute if the order is approved 
+                bool response = CheckIfApproved(order);
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                _log.LogError(ex, "CheckIsApproval Failed");
+                return false;
+            }
+        }
+        public async Task<ResultHandler> InsertRange(IEnumerable<EventModel> items)
+        {
+            try
+            {
+                await this._repository.InsertRange(items);
                 return ResultHandler.Ok();
             }
             catch (Exception ex)
@@ -41,73 +59,59 @@ namespace CalendarEvents.Services
                 return ResultHandler.Fail(ex);
             }
         }
-        public async Task<ResultHandler> InsertRange(IEnumerable<T> items)
-        {
-            try
-            {
-                await this._repository.InsertRange(items);               
-                return ResultHandler.Ok();
-            }
-            catch (Exception ex)
-            {
-                _log.LogError(ex, "Failed inserting object to DB");
-                return ResultHandler.Fail(ex);
-            }
-        }
-        public ResultHandler<IAsyncEnumerable<T>> Get(IEnumerable<FilterStatement<T>> filterStatements,
-                                                OrderByStatement<T> orderByStatement = null,
+        public ResultHandler<IAsyncEnumerable<EventModel>> Get(IEnumerable<FilterStatement<EventModel>> filterStatements,
+                                                OrderByStatement<EventModel> orderByStatement = null,
                                                 string includeProperties = "")
         {
             try
             {
-                Expression<Func<T, bool>> filters = null;
-                if (filterStatements != null && filterStatements.Any())
-                {                    
-                    var filterService = new FiltersService<T>(filterStatements);
-                    var filtersResult = filterService.BuildExpression();
+                IEnumerable<Expression<Func<EventModel, bool>>> filters = null;
+                if (filterStatements != null)
+                {
+                    var filtersResult = this._filtersService.BuildExpressions(filterStatements);
                     if (!filtersResult.Success)
                     {
-                        return ResultHandler.Fail<IAsyncEnumerable<T>>(filtersResult.ErrorCode);
+                        return ResultHandler.Fail<IAsyncEnumerable<EventModel>>(filtersResult.ErrorCode);
                     }
-                    filters = filtersResult.Value as Expression<Func<T, bool>>;
+                    filters = filtersResult.Value;
                 }
 
-                Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null;
+                Func<IQueryable<EventModel>, IOrderedQueryable<EventModel>> orderBy = null;
                 if (orderByStatement != null)
                 {
                     var orderByService = new OrderByService();
-                    var orderByResult = orderByService.GetOrderBy<T>(orderByStatement);
+                    var orderByResult = orderByService.GetOrderBy<EventModel>(orderByStatement);
                     if (!orderByResult.Success)
                     {
-                        return ResultHandler.Fail<IAsyncEnumerable<T>>(orderByResult.ErrorCode);
+                        return ResultHandler.Fail<IAsyncEnumerable<EventModel>>(orderByResult.ErrorCode);
                     }
-                    orderBy = orderByResult.Value as Func<IQueryable<T>, IOrderedQueryable<T>>;
+                    orderBy = orderByResult.Value as Func<IQueryable<EventModel>, IOrderedQueryable<EventModel>>;
                 }
 
-                IAsyncEnumerable<T> result = this._repository.Get(filters, orderBy, includeProperties);
+                IAsyncEnumerable<EventModel> result = this._repository.Get(filters, orderBy, includeProperties);
 
                 return ResultHandler.Ok(result);
             }
             catch (Exception ex)
             {
                 _log.LogError(ex, "Failed to get objects from DB");
-                return ResultHandler.Fail<IAsyncEnumerable<T>>(ex);
+                return ResultHandler.Fail<IAsyncEnumerable<EventModel>>(ex);
             }
         }
-        public async Task<ResultHandler<T>> GetById(Guid id)
+        public async Task<ResultHandler<EventModel>> GetById(Guid id)
         {
             try
             {
                 var entity = await this._repository.GetById(id);
                 if (entity == null)
-                    return ResultHandler.Fail<T>(ErrorCode.NotFound);
+                    return ResultHandler.Fail<EventModel>(ErrorCode.NotFound);
 
-                return ResultHandler.Ok<T>(entity);
+                return ResultHandler.Ok<EventModel>(entity);
             }
             catch (Exception ex)
             {
                 _log.LogError(ex, "Failed to get object with id: {0} from DB", id);
-                return ResultHandler.Fail<T>(ex);
+                return ResultHandler.Fail<EventModel>(ex);
             }
         }
 
@@ -118,7 +122,7 @@ namespace CalendarEvents.Services
                 var entity = await this._repository.GetById(id);
                 if (entity == null)
                 {
-                    return ResultHandler.Fail(ErrorCode.NotFound);
+                    return ResultHandler.Fail(ErrorCode.NotFound, "Entity not found");
                 }
                 await this._repository.Remove(entity);
 
@@ -131,7 +135,7 @@ namespace CalendarEvents.Services
             }
         }
 
-        public async Task<ResultHandler> Update(T obj)
+        public async Task<ResultHandler> Update(EventModel obj)
         {
             try
             {                
