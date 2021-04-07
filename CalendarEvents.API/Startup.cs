@@ -52,6 +52,7 @@ namespace CalendarEvents
 
             IdentityModelEventSource.ShowPII = true; //Add this line
 
+            
             services.AddCors(options =>
             {
                 options.AddPolicy(name: MyAllowSpecificOrigins,
@@ -74,7 +75,7 @@ namespace CalendarEvents
                                 .Build();
                 options.Filters.Add(new AuthorizeFilter(policy));
             });
-            services.AddControllers();
+            //services.AddControllers();
 
             services.AddHttpContextAccessor();
 
@@ -139,8 +140,12 @@ namespace CalendarEvents
 
             connectionString = Configuration.GetConnectionString("DefaultConnection");
 
-            string migrationsAssembly = typeof(ApplicationDbContext)
-                .GetTypeInfo().Assembly.GetName().Name;
+            //services.AddDbContext<CalendarEvents.DataAccess.ApplicationDbContext>();
+
+            //var config2 = Configuration.GetConnectionString("DefaultConnection");
+
+
+            string migrationsAssembly = typeof(ApplicationDbContext).GetTypeInfo().Assembly.GetName().Name;
             services.AddDbContext<ApplicationDbContext>(options =>
             {
                 options.UseSqlServer(
@@ -149,15 +154,17 @@ namespace CalendarEvents
                 );
             });
 
-            string migrationsMirrorAssembly = typeof(CalendarEvents.DataAccess.Mirror.ApplicationDbContext)
-                .GetTypeInfo().Assembly.GetName().Name;
-            services.AddDbContext<CalendarEvents.DataAccess.Mirror.ApplicationDbContext>(options =>
-            {
-                options.UseSqlServer(
-                    connectionString,
-                    b => b.MigrationsAssembly(migrationsMirrorAssembly)
-                );
-            });
+            //string migrationsMirrorAssembly = typeof(CalendarEvents.DataAccess.Mirror.ApplicationDbContext)
+            //    .GetTypeInfo().Assembly.GetName().Name;
+            //services.AddDbContext<CalendarEvents.DataAccess.Mirror.ApplicationDbContext>(options =>
+            //{
+            //    options.UseSqlServer(
+            //        connectionString,
+            //        b => b.MigrationsAssembly(migrationsMirrorAssembly)
+            //    );
+            //});
+
+            //services.AddDbContext<CalendarEvents.DataAccess.Mirror.ApplicationDbContext>();
 
 
             //TODO: register all the generic service and repository with generic syntax like autofac does <>.
