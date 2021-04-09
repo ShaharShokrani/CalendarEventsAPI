@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using CalendarEvents.API;
 using CalendarEvents.API.Authorization;
+using CalendarEvents.API.Extenstions;
 using CalendarEvents.DataAccess;
 using CalendarEvents.Models;
 using CalendarEvents.Services;
@@ -191,13 +192,15 @@ namespace CalendarEvents
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger logger)
         {
             PrepareDB.PreparePopulation(app).Wait();
             if (env.IsDevelopment())
             {                
                 app.UseDeveloperExceptionPage();
             }
+
+            app.ConfigureExceptionHandler(logger);
 
             //else
             //{
